@@ -268,7 +268,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       if (it.sizes) h += '<div class="sizes">Sizes: ' + esc(it.sizes) + '</div>';
       var wa = waDigits();
       if (wa && avail){
-        var msg = "Hi Cee's Babies Outlet, I'd like to order:\nItem code: " + (it.code||'') + "\n" + (it.name||'this item') + ' - ' + genderLabel(it.gender) + (pr ? "\nPrice: " + pr : '') + ((it.ages||[]).length ? "\nSizes shown: " + it.ages.join(', ') : '') + "\nSize I want: ";
+        var msg = "Hi Cee's Babies Outlet, I'd like to order:\nItem code: " + (it.code||'') + "\n" + (it.name||'this item') + ' - ' + genderLabel(it.gender) + (pr ? "\nPrice: " + pr : '') + ((it.ages||[]).length ? "\nSizes shown: " + it.ages.join(', ') : '') + (it.code ? "\nPhoto: https://luminous-moxie-eed1fb.netlify.app/photos/" + it.code + ".jpg" : '') + "\nSize I want: ";
         h += '<a class="btn sm blue" style="align-self:flex-start" data-share="' + esc(it.id) + '" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + ICON.wa.replace('<svg','<svg width="16" height="16"') + ' Order on WhatsApp</a>';
       }
     }
