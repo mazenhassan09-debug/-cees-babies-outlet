@@ -269,7 +269,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       var wa = waDigits();
       if (wa && avail){
         var msg = "Hi Cee's Babies Outlet, I'd like to order:\nItem code: " + (it.code||'') + "\n" + (it.name||'this item') + ' - ' + genderLabel(it.gender) + (pr ? "\nPrice: " + pr : '') + ((it.ages||[]).length ? "\nSizes shown: " + it.ages.join(', ') : '') + (it.code ? "\nPhoto: https://luminous-moxie-eed1fb.netlify.app/photos/" + it.code + ".jpg" : '') + "\nSize I want: ";
-        h += '<a class="btn sm blue" style="align-self:flex-start" data-share="' + esc(it.id) + '" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + ICON.wa.replace('<svg','<svg width="16" height="16"') + ' Order on WhatsApp</a>';
+        h += '<a class="btn sm blue" style="align-self:flex-start" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + ICON.wa.replace('<svg','<svg width="16" height="16"') + ' Order on WhatsApp</a>';
       }
     }
     return h + '</article>';
@@ -390,22 +390,6 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var n = document.getElementById('codeq'); if (n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(x){} }
   });
 
-  /* Order on WhatsApp: share the item's photo together with the message when the phone supports it */
-  root.addEventListener('click', function(e){
-    var a = e.target.closest('a[data-share]'); if (!a) return;
-    if (!window.File || !navigator.share || !navigator.canShare) return;
-    var it = work.items.filter(function(x){ return x.id === a.getAttribute('data-share'); })[0];
-    if (!it || !it.img || it.img.indexOf('data:') !== 0) return;
-    try {
-      var p = it.img.split(','), mime = (p[0].match(/:(.*?);/) || [])[1] || 'image/jpeg', bin = atob(p[1]), u8 = new Uint8Array(bin.length);
-      for (var k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k);
-      var f = new File([u8], String(it.name || 'item').replace(/[^\w-]+/g, '-') + '.jpg', { type: mime });
-      var d = { files: [f], text: decodeURIComponent((a.href.split('?text=')[1] || '')) };
-      if (!navigator.canShare(d)) return;
-      e.preventDefault();
-      navigator.share(d).catch(function(err){ if (err && err.name === 'AbortError') return; window.open(a.href, '_blank'); });
-    } catch (x) {}
-  });
 
   root.addEventListener('click', function(e){
     var t = e.target.closest('button'); if (!t) return;
