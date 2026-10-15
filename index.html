@@ -18,6 +18,7 @@ a{color:inherit}
 .btn{font:inherit;font-weight:700;font-size:.92rem;border-radius:999px;padding:10px 18px;border:2px solid var(--fg);background:var(--surface);color:var(--fg);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn.pink{background:var(--pink-deep);border-color:var(--pink-deep);color:#fff}
 .btn.blue{background:var(--blue-deep);border-color:var(--blue-deep);color:#fff}
+.btn.wa{background:#6FC79A;border-color:#6FC79A;color:#fff}
 .btn.ghost{border-color:var(--line)}
 .btn.danger{border-color:var(--danger);color:var(--danger);background:var(--surface)}
 .btn.sm{font-size:.82rem;padding:6px 12px}
@@ -269,7 +270,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       var wa = waDigits();
       if (wa && avail){
         var msg = "Hi Cee's Babies Outlet, I'd like to order:\nItem code: " + (it.code||'') + "\n" + (it.name||'this item') + ' - ' + genderLabel(it.gender) + (pr ? "\nPrice: " + pr : '') + ((it.ages||[]).length ? "\nSizes shown: " + it.ages.join(', ') : '') + (it.code ? "\nPhoto: https://luminous-moxie-eed1fb.netlify.app/photos/" + it.code + ".jpg" : '') + "\nSize I want: ";
-        h += '<a class="btn sm blue" style="align-self:flex-start" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + ICON.wa.replace('<svg','<svg width="16" height="16"') + ' Order on WhatsApp</a>';
+        h += '<a class="btn sm wa" style="align-self:flex-start" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + ICON.wa.replace('<svg','<svg width="16" height="16"') + ' Order on WhatsApp</a>';
       }
     }
     return h + '</article>';
