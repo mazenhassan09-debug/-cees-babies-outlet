@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Cee's Babies Outlet</title>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cees Babies"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Cee's Babies Outlet</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap">
 <style id="page-style">
 /* Layout: logo bar, pastel hero flanked by the two foot mascots, sticky filter strip (boys/girls, age, in stock), New Arrivals grid then All Clothes grid, contact block with poster and parent mascots. Single light look, matching the brand's printed materials. */
@@ -75,6 +75,11 @@ a{color:inherit}
 .musicbtn.on .mfeet{animation:mbounce 1.2s ease-in-out infinite}
 @keyframes mbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @media (prefers-reduced-motion:reduce){.musicbtn.on .mfeet{animation:none}}
+.a2hs{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.a2hs-row{display:flex;align-items:center;gap:6px}
+.a2hs-go{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--blue);border-radius:999px;padding:5px 12px 5px 8px;background:#fff;color:var(--blue-deep);font-family:var(--display);font-weight:700;font-size:.82rem;box-shadow:0 3px 12px rgba(0,0,0,.16);cursor:pointer}
+.a2hs-x{width:28px;height:28px;border-radius:50%;border:0;background:#fff;color:#666;font-size:18px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.16);cursor:pointer}
+.a2hs-tip{max-width:240px;background:#fff;color:#333;border:2px solid var(--pink);border-radius:16px;padding:10px 12px;font-size:.85rem;box-shadow:0 3px 12px rgba(0,0,0,.16)}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .card.out .ph img{filter:grayscale(.85);opacity:.55}
 .pill{position:absolute;top:10px;left:10px;font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
@@ -420,6 +425,30 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     });
     label(); document.body.appendChild(b);
   })();
+  /* "Add to home screen" helper: real install prompt where the browser supports it, otherwise a short how-to */
+  (function(){
+    var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone;
+    if (standalone) return;
+    try{ if (sessionStorage.getItem('cbo-a2hs') === '0') return; }catch(x){}
+    var dp = null;
+    window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); dp = e; });
+    var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var w = document.createElement('div'); w.className = 'a2hs';
+    var tip = document.createElement('div'); tip.className = 'a2hs-tip'; tip.hidden = true;
+    tip.innerHTML = ios ? 'Tap the <b>Share</b> button (the square with an arrow), then choose <b>Add to Home Screen</b>.' : 'Open the browser menu (the 3 dots), then choose <b>Add to Home screen</b> or <b>Install app</b>.';
+    var row = document.createElement('div'); row.className = 'a2hs-row';
+    var go = document.createElement('button'); go.type = 'button'; go.className = 'a2hs-go';
+    go.innerHTML = '<span class="mfeet"></span><span>Add to home screen</span>';
+    try{ go.firstChild.style.backgroundImage = 'url(' + B.logo + ')'; }catch(x){}
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'a2hs-x'; x.setAttribute('aria-label', 'Hide'); x.innerHTML = '&times;';
+    go.addEventListener('click', function(){
+      if (dp){ var p = dp; dp = null; try{ p.prompt(); }catch(e){ tip.hidden = false; } }
+      else tip.hidden = !tip.hidden;
+    });
+    x.addEventListener('click', function(){ try{ sessionStorage.setItem('cbo-a2hs','0'); }catch(e){} w.remove(); });
+    window.addEventListener('appinstalled', function(){ w.remove(); });
+    row.appendChild(go); row.appendChild(x); w.appendChild(tip); w.appendChild(row); document.body.appendChild(w);
+  })();
   function changed(){ ui.dirty = true; ui.note=''; }
   root.addEventListener('input', function(e){
     var t = e.target; if (!t || t.id !== 'codeq') return;
@@ -609,7 +638,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
 
   function buildDoc(data){
     var json = JSON.stringify(data).replace(/</g,'\\u003c');
-    return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>' + RESET + '</style></head><body>' +
+    return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cees Babies"><style>' + RESET + '</style></head><body>' +
       '<title>Cee\'s Babies Outlet</title>\n<link rel="stylesheet" href="' + esc(fontHref) + '">\n' +
       '<style id="page-style">' + styleText + '</style>\n\n<div id="root"></div>\n\n' +
       '<script type="application/json" id="brand">' + brandText + '<\/script>\n\n' +
