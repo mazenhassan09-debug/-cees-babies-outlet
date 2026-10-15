@@ -69,6 +69,12 @@ a{color:inherit}
 .card.boys .ph{background:var(--blue-soft)}
 .code{font-size:12px;font-weight:700;letter-spacing:.04em;opacity:.65;margin:6px 4px 0}
 .codeq{display:block;width:100%;max-width:340px;box-sizing:border-box;padding:10px 14px;margin:10px 0;border:1.5px solid #cfd8ea;border-radius:999px;font:inherit}
+.musicbtn{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:60;display:inline-flex;align-items:center;gap:8px;border:2px solid var(--pink);border-radius:999px;padding:6px 16px 6px 10px;background:#fff;color:var(--pink-deep);font-family:var(--display);font-weight:700;font-size:1rem;box-shadow:0 3px 12px rgba(0,0,0,.16);cursor:pointer}
+.musicbtn.on{border-color:var(--blue);color:var(--blue-deep)}
+.mfeet{display:inline-block;width:34px;height:26px;background-repeat:no-repeat;background-size:62px 42px;background-position:-14px 0}
+.musicbtn.on .mfeet{animation:mbounce 1.2s ease-in-out infinite}
+@keyframes mbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.musicbtn.on .mfeet{animation:none}}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .card.out .ph img{filter:grayscale(.85);opacity:.55}
 .pill{position:absolute;top:10px;left:10px;font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
@@ -384,6 +390,36 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   }
   function dropHoldDoc(id){ if (dbRef) dbRef.collection('holds').doc(id).delete().catch(function(){}); }
 
+  /* Soft music-box lullaby (Twinkle Twinkle), plays only when the customer taps the button */
+  (function(){
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    var F = {C:523.25, D:587.33, E:659.25, F:698.46, G:783.99, A:880};
+    var seq = 'C C G G A A G2 F F E E D D C2 G G F F E E D2 G G F F E E D2 C C G G A A G2 F F E E D D C2'.split(' ');
+    var ctx = null, timer = null, on = false;
+    function note(f, t, d){
+      [[1,0.10],[2,0.035]].forEach(function(p){
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = f * p[0];
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(p[1], t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.9);
+        o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + d + 1);
+      });
+    }
+    function play(){
+      var t = ctx.currentTime + 0.1, beat = 0.55;
+      seq.forEach(function(n){ var len = n.length > 1 ? 2 : 1; note(F[n[0]], t, beat * len); t += beat * len; });
+      timer = setTimeout(function(){ if (on) play(); }, (t - ctx.currentTime + 1.5) * 1000);
+    }
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'musicbtn';
+    function label(){ b.innerHTML = '<span class="mfeet"></span><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>'; try{ b.firstChild.style.backgroundImage = 'url(' + B.logo + ')'; }catch(x){} b.className = 'musicbtn' + (on ? ' on' : ''); b.setAttribute('aria-label', on ? 'Turn baby music off' : 'Play soft baby music'); }
+    b.addEventListener('click', function(){
+      if (!on){ try{ ctx = new AC(); if (ctx.state === 'suspended') ctx.resume(); on = true; play(); }catch(x){ on = false; } }
+      else { on = false; clearTimeout(timer); try{ ctx.close(); }catch(x){} ctx = null; }
+      label();
+    });
+    label(); document.body.appendChild(b);
+  })();
   function changed(){ ui.dirty = true; ui.note=''; }
   root.addEventListener('input', function(e){
     var t = e.target; if (!t || t.id !== 'codeq') return;
