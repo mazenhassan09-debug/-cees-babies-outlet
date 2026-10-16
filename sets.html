@@ -168,6 +168,25 @@ html[data-evt] .card{border-color:var(--ev-line)}
 .fv-empty{padding:30px 10px;text-align:center;opacity:.75}
 .favtoast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(120px + env(safe-area-inset-bottom,0px));z-index:120;background:#2b2d42;color:#fff;padding:9px 16px;border-radius:999px;font-size:14px;font-weight:700;max-width:90vw;text-align:center}
 @media(prefers-reduced-motion:reduce){.heart svg{transition:none}}
+/* loader + page fade */
+#boot{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;transition:opacity .45s ease}
+#boot.out{opacity:0;pointer-events:none}
+#boot .track{position:relative;width:100%;height:120px}
+#boot .ft{position:absolute;bottom:0;left:0;width:64px;will-change:transform;animation:bootwalk 3.2s linear infinite}
+#boot .ft img{display:block;width:100%;height:auto;transform-origin:50% 90%;animation:boothop .5s ease-in-out infinite alternate}
+#boot .ft.b{animation-delay:-.7s}
+#boot .ft.b img{animation-delay:-.25s}
+#boot p{margin:0;font-family:var(--display);font-weight:600;font-size:1.15rem;color:var(--pink-deep);text-align:center;padding:0 20px}
+#boot p span{display:inline-block;animation:bootdot 1.2s ease-in-out infinite}
+#boot p span:nth-child(2){animation-delay:.2s}#boot p span:nth-child(3){animation-delay:.4s}
+@keyframes bootwalk{from{transform:translateX(-90px)}to{transform:translateX(100vw)}}
+@keyframes boothop{from{transform:translateY(0) rotate(-7deg)}to{transform:translateY(-14px) rotate(7deg)}}
+@keyframes bootdot{0%,100%{opacity:.25}50%{opacity:1}}
+body{transition:opacity .22s ease}
+body.leaving{opacity:0}
+body.arrive #root{animation:pgin .38s ease both}
+@keyframes pgin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#boot,body{transition:none}#boot .ft,#boot .ft img,#boot p span{animation:none}#boot .ft{left:calc(50% - 32px)}body.arrive #root{animation:none}}
 /* page tabs */
 .pgt{display:flex;gap:6px}
 .pgt a{flex:1;text-align:center;padding:7px 8px;border-radius:999px;font-weight:800;font-size:.84rem;text-decoration:none;border:2px solid var(--line);color:var(--muted);background:var(--surface);line-height:1.2;white-space:nowrap}
@@ -1019,8 +1038,35 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     });
   }
 
+  /* ---- loading screen (walking feet) + smooth Singles/Sets switch ---- */
+  var fromTab=false;
+  try{ fromTab = sessionStorage.getItem('cbo-nav')==='1'; sessionStorage.removeItem('cbo-nav'); }catch(e){}
+  var bootEl=null, bootT0=Date.now(), skipBoot=fromTab;
+  try{ if(sessionStorage.getItem('cbo-manage')==='1') skipBoot=true; }catch(e){}
+  if(!skipBoot){
+    bootEl=document.createElement('div'); bootEl.id='boot'; bootEl.setAttribute('aria-hidden','true');
+    bootEl.innerHTML='<div class="track"><div class="ft"><img src="'+B.pink+'" alt=""></div><div class="ft b"><img src="'+B.blue+'" alt=""></div></div><p>Getting the cutest clothes ready<span>.</span><span>.</span><span>.</span></p>';
+    document.body.appendChild(bootEl);
+  } else if(fromTab){ document.body.classList.add('arrive'); }
+  function hideBoot(){
+    if(!bootEl) return;
+    var el=bootEl; bootEl=null;
+    var wait=Math.max(0, 1300-(Date.now()-bootT0));
+    setTimeout(function(){ el.classList.add('out'); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },500); }, wait);
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest && e.target.closest('.pgt a');
+    if(!a||a.classList.contains('on')||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button) return;
+    e.preventDefault();
+    try{ sessionStorage.setItem('cbo-nav','1'); }catch(x){}
+    document.body.classList.add('leaving');
+    var href=a.getAttribute('href');
+    setTimeout(function(){ location.href=href; },230);
+  });
+  window.addEventListener('pageshow',function(ev){ if(ev.persisted) document.body.classList.remove('leaving'); });
+
   ui.dirty = false; // migration is saved with the owner's next save
-  render();
+  if(bootEl){ setTimeout(function(){ render(); hideBoot(); },60); } else { render(); }
 
   if (window.claude && window.claude.use){
     window.claude.use('user').then(function(u){
