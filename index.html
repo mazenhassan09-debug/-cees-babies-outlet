@@ -731,6 +731,33 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       b.classList.toggle('on',on); b.setAttribute('aria-pressed',on?'true':'false'); b.setAttribute('aria-label',on?'Remove from favorites':'Add to favorites');
     });
   }
+  var confettiDone=false;
+  function confetti(code){
+    if(confettiDone) return;
+    try{ if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch(e){}
+    var btns=document.querySelectorAll('[data-fav="'+code+'"]'), h=null;
+    for(var k=0;k<btns.length;k++){ if(btns[k].getBoundingClientRect().width>0){ h=btns[k]; break; } }
+    if(!h||!h.animate) return;
+    confettiDone=true;
+    var r=h.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+    var cols=['#f27aa6','#2f8be6','#ff9ec4','#8ec5ff','#d94f84','#1d6fc2'];
+    var box=document.createElement('div'); box.setAttribute('aria-hidden','true');
+    box.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:99998;overflow:hidden';
+    function rnd(a,b){ return a+Math.random()*(b-a); }
+    for(var i=0;i<44;i++){
+      var p=document.createElement('i'), w=rnd(6,11), hh=rnd(8,15);
+      p.style.cssText='position:absolute;left:'+(cx-w/2)+'px;top:'+(cy-hh/2)+'px;width:'+w+'px;height:'+hh+'px;background:'+cols[i%6]+';border-radius:'+(i%3?'2px':'50%');
+      box.appendChild(p);
+      var dx=rnd(-150,150), up=rnd(30,120), fall=rnd(180,380), rot=rnd(-540,540);
+      p.animate([
+        {transform:'translate(0,0) rotate(0deg)',opacity:1},
+        {transform:'translate('+(dx*0.6)+'px,'+(-up)+'px) rotate('+(rot*0.4)+'deg)',opacity:1,offset:.3},
+        {transform:'translate('+dx+'px,'+fall+'px) rotate('+rot+'deg)',opacity:0}
+      ],{duration:rnd(900,1400),easing:'cubic-bezier(.2,.6,.4,1)',fill:'forwards'});
+    }
+    document.body.appendChild(box);
+    setTimeout(function(){ if(box.parentNode) box.parentNode.removeChild(box); },1600);
+  }
   function toggleFav(code){
     var i=favs.indexOf(code);
     if(i>=0){ favs.splice(i,1); }
@@ -738,7 +765,9 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       if(liveFavs().length>=FMAX){ favToast('Your favorites list is full ('+FMAX+'). Send these first, then add more.'); return; }
       var fi=itemByCode(code); noteInfo(fi); makeThumb(fi); favs.push(code);
     }
+    var added=favs.indexOf(code)>=0;
     saveFavs(); syncHearts(code); updateFavBar(); if(favPanel) drawFavs();
+    if(added) confetti(code);
   }
   function favTotal(codes){
     var sum=0, unp=0;
