@@ -185,6 +185,18 @@ html[data-evt] .card{border-color:var(--ev-line)}
 @keyframes cbdrift{0%,100%{transform:translateX(0)}50%{transform:translateX(14px)}}
 @keyframes cbtwink{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
 @media (prefers-reduced-motion:no-preference){.hero .sky .cl{animation:cbdrift 14s ease-in-out infinite}.hero .sky .cl.b{animation-duration:19s;animation-direction:reverse}.hero .sky .st{animation:cbtwink 3.2s ease-in-out infinite}.hero .sky .st.b{animation-delay:-1.1s}.hero .sky .st.c{animation-delay:-2.1s}}
+/* language switch (French, Arabic) */
+.bar .row{position:relative}
+.langbtn{display:inline-flex;align-items:center;gap:6px;border:2px solid #f3c9da;border-radius:999px;padding:8px 12px;margin-inline-end:8px;font:inherit;font-weight:800;font-size:.85rem;background:#fff;color:#d94f84;cursor:pointer;line-height:1}
+.langbtn svg{flex:none}
+.langmenu{position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:60;background:#fff;border:2px solid #f3c9da;border-radius:16px;padding:6px;box-shadow:0 14px 30px -12px rgba(43,45,66,.35);min-width:150px}
+.langmenu[hidden]{display:none}
+.langmenu button{display:block;width:100%;text-align:start;border:0;background:transparent;font:inherit;font-weight:700;font-size:.95rem;color:#2b2d42;padding:10px 12px;border-radius:10px;cursor:pointer}
+.langmenu button.on{background:#ffe3ee;color:#d94f84}
+html[lang=ar]{--display:'Cairo','Tajawal',system-ui,'Segoe UI',Tahoma,sans-serif}
+html[lang=ar] body,html[lang=ar] button,html[lang=ar] input{font-family:'Cairo','Tajawal',system-ui,'Segoe UI',Tahoma,sans-serif}
+html[lang=ar] .hero h1{line-height:1.25}
+html[lang=fr] .pill,html[lang=ar] .pill{white-space:nowrap}
 /* thank-you card */
 #thx{position:fixed;inset:0;z-index:99997;background:rgba(43,45,66,.45);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .3s ease}
 #thx.in{opacity:1}
@@ -759,6 +771,155 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     }
     try{ new MutationObserver(dress).observe(root,{childList:true}); }catch(e){}
     dress();
+  })();
+
+  /* ---- language switch: English, French, Arabic (right to left) ---- */
+  (function(){
+    var D={}, R=[], LK='cbo-lang', L='en', busy=false, queued=false, menu=null, btn=null;
+    function P(en,fr,ar){ D[en]=[fr,ar]; }
+    P('Clothes','Vêtements','ملابس'); P('for Kids','pour enfants','للأطفال');
+    P('Cute styles for every little adventure. Premium kids’ clothing in Spintex, Accra.','Des modèles mignons pour chaque petite aventure. Vêtements premium pour enfants à Spintex, Accra.','أزياء لطيفة لكل مغامرة صغيرة. ملابس أطفال فاخرة في سبينتكس، أكرا.');
+    P('Pickup & deliveries available','Retrait et livraison disponibles','الاستلام والتوصيل متاحان');
+    P('All','Tout','الكل'); P('Boys','Garçons','أولاد'); P('Girls','Filles','بنات'); P('Boys & Girls','Garçons et filles','أولاد وبنات');
+    P('In stock only','En stock uniquement','المتوفر فقط');
+    P('Singles','Pièces seules','قطع منفردة'); P('Sets','Ensembles','أطقم');
+    P('· one piece','· une pièce','· قطعة واحدة'); P('· top & bottom','· haut et bas','· علوي وسفلي');
+    P('All ages','Tous les âges','كل الأعمار');
+    P('Out of stock','Épuisé','نفد'); P('In stock','En stock','متوفر'); P('Reserved','Réservé','محجوز'); P('New','Nouveau','جديد');
+    P('Order on WhatsApp','Commander sur WhatsApp','اطلب عبر واتساب');
+    P('Shorts','Short','شورت'); P('Trousers','Pantalon','بنطلون'); P('Dress','Robe','فستان'); P('Skirt','Jupe','تنورة'); P('Shirt','Chemise','قميص'); P('Top','Haut','توب');
+    P('Leggings','Legging','ليجنز'); P('Leggings Shorts','Legging court','شورت ليجنز'); P('Braces Shorts','Short à bretelles','شورت بحمالات'); P('Jersey Shorts','Short en jersey','شورت رياضي');
+    P('Onesie & Pants','Body et pantalon','بودي وبنطلون'); P('Onesie & Shorts','Body et short','بودي وشورت'); P('Onesie & Underwear','Body et sous-vêtements','بودي وملابس داخلية');
+    P('PJs','Pyjama','بيجاما'); P('Pinafore','Robe chasuble','فستان بحمالات'); P('Sweat Pants','Pantalon de jogging','بنطلون رياضي'); P('Swim Suit','Maillot de bain','ثوب سباحة');
+    P('Top & Bottoms','Haut et bas','علوي وسفلي'); P('Top & Leggings','Haut et legging','توب وليجنز'); P('Top & Pants','Haut et pantalon','توب وبنطلون'); P('Top & Shorts','Haut et short','توب وشورت'); P('Top & Skirt','Haut et jupe','توب وتنورة'); P('Top & Trousers','Haut et pantalon','توب وبنطلون'); P('Tutu Leggings','Legging tutu','ليجنز توتو');
+    P('Send us a photo','Envoyez-nous une photo','أرسل لنا صورة');
+    P('Can’t find what you want?','Vous ne trouvez pas ce que vous cherchez ?','لا تجد ما تبحث عنه؟');
+    P('Send us a photo of the piece you’re looking for. We’ll check if we can get it, then tell you the price and when it can arrive.','Envoyez-nous une photo de la pièce recherchée. Nous vérifierons si nous pouvons la trouver, puis nous vous indiquerons le prix et la date d’arrivée.','أرسل لنا صورة القطعة التي تبحث عنها. سنتحقق إن كان بإمكاننا توفيرها، ثم نخبرك بالسعر وموعد وصولها.');
+    P('Attach the photo and add the age or size','Joignez la photo et indiquez l’âge ou la taille','أرفق الصورة وأضف العمر أو المقاس');
+    P('We reply with the price and availability','Nous répondons avec le prix et la disponibilité','نرد عليك بالسعر والتوفر');
+    P('Tap the button to open WhatsApp','Appuyez sur le bouton pour ouvrir WhatsApp','اضغط على الزر لفتح واتساب');
+    P('or','ou','أو'); P('Call / WhatsApp','Appeler / WhatsApp','اتصال / واتساب'); P('Visit or message us','Passez nous voir ou écrivez-nous','زرنا أو راسلنا');
+    P('Location','Adresse','الموقع'); P('Delivery','Livraison','التوصيل');
+    P('Arrivals','Nouveautés','وصل حديثًا'); P('All Clothes','Tous les vêtements','كل الملابس');
+    P('Added in the last 30 days','Ajoutés ces 30 derniers jours','أُضيفت خلال آخر 30 يومًا');
+    P('Pieces move here 30 days after they arrive.','Les pièces passent ici 30 jours après leur arrivée.','تنتقل القطع إلى هنا بعد 30 يومًا من وصولها.');
+    P('Add to home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home Screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية');
+    P('Install app','Installer l’appli','تثبيت التطبيق');
+    P('Open the browser menu (the 3 dots), then choose','Ouvrez le menu du navigateur (les 3 points), puis choisissez','افتح قائمة المتصفح (النقاط الثلاث) ثم اختر');
+    P('Tap the','Appuyez sur le bouton','اضغط على زر'); P('Share','Partager','مشاركة');
+    P('button (the square with an arrow), then choose','(le carré avec une flèche), puis choisissez','(المربع الذي به سهم) ثم اختر');
+    P('© 2026 Cee’s Babies Outlet · Premium Kids’ Clothing','© 2026 Cee’s Babies Outlet · Vêtements premium pour enfants','جميع الحقوق محفوظة © Cee’s Babies Outlet 2026 · ملابس أطفال فاخرة');
+    P('Merry Christmas from Cee’s Babies Outlet!','Joyeux Noël de la part de Cee’s Babies Outlet !','عيد ميلاد مجيد من Cee’s Babies Outlet!');
+    P('Eid Mubarak!','Aïd Moubarak !','عيد مبارك!'); P('Ramadan Kareem','Ramadan Mubarak','رمضان كريم');
+    P('Happy Easter!','Joyeuses Pâques !','عيد فصح سعيد!'); P('Happy Independence Day, Ghana!','Joyeux Jour de l’Indépendance, Ghana !','عيد استقلال سعيد يا غانا!');
+    P('Happy Mother’s Day!','Bonne fête des mères !','عيد أم سعيد!'); P('Happy Valentine’s Day!','Joyeuse Saint-Valentin !','عيد حب سعيد!');
+    P('Happy New Year! Wishing your little ones a bright year','Bonne année ! Une belle année à vos petits','سنة جديدة سعيدة! نتمنى لصغارك عامًا مشرقًا');
+    P('Back to school! Fresh outfits for the new term','C’est la rentrée ! De nouvelles tenues pour le nouveau trimestre','العودة إلى المدرسة! أزياء جديدة للفصل الجديد');
+    P('Remove','Retirer','إزالة'); P('Send my favorites on WhatsApp','Envoyer mes favoris sur WhatsApp','أرسل مفضلتي عبر واتساب'); P('Clear all','Tout effacer','مسح الكل');
+    P('No favorites yet.','Aucun favori pour l’instant.','لا توجد مفضلات بعد.');
+    P('Tap the heart on any photo to save it here.','Touchez le cœur sur une photo pour l’enregistrer ici.','اضغط على القلب في أي صورة لحفظها هنا.');
+    P('Thank you for your order','Merci pour votre commande','شكرًا لطلبك');
+    P('We\'ll confirm on WhatsApp shortly','Nous confirmerons bientôt sur WhatsApp','سنؤكد طلبك عبر واتساب قريبًا');
+    P('We’ll confirm on WhatsApp shortly','Nous confirmerons bientôt sur WhatsApp','سنؤكد طلبك عبر واتساب قريبًا');
+    P('Close','Fermer','إغلاق'); P('Hide','Masquer','إخفاء'); P('Age','Âge','العمر');
+    P('Find by item code (e.g. CB012)','Chercher par code article (ex. CB012)','ابحث برمز القطعة (مثل CB012)'); P('Find by item code','Chercher par code article','ابحث برمز القطعة');
+    P('Add to favorites','Ajouter aux favoris','أضف إلى المفضلة'); P('Remove from favorites','Retirer des favoris','إزالة من المفضلة'); P('My favorites','Mes favoris','مفضلتي');
+    P('Boys or girls','Garçons ou filles','أولاد أو بنات'); P('Singles or Sets','Pièces seules ou ensembles','قطع منفردة أو أطقم'); P('Play soft baby music','Jouer une douce musique pour bébé','تشغيل موسيقى هادئة للأطفال');
+    function A(re,fr,ar){ R.push({re:re,f:[fr,ar]}); }
+    A(/^Code: (.+)$/,function(m){return 'Code : '+m[1];},function(m){return 'الرمز: '+m[1];});
+    A(/^Only (\d+) left$/,function(m){return 'Plus que '+m[1];},function(m){return 'بقي '+m[1]+' فقط';});
+    A(/^My favorites \((\d+)\)$/,function(m){return 'Mes favoris ('+m[1]+')';},function(m){return 'مفضلتي ('+m[1]+')';});
+    A(/^Total \((\d+) items?\)$/,function(m){return 'Total ('+m[1]+(m[1]==='1'?' article':' articles')+')';},function(m){return 'المجموع ('+m[1]+')';});
+    A(/^We’ll get one message with all (\d+) items?\. You can tell us your sizes there\.$/,function(m){return 'Nous recevrons un seul message avec '+(m[1]==='1'?'l’article':'les '+m[1]+' articles')+'. Vous pourrez nous indiquer vos tailles là-bas.';},function(m){return 'سنتلقى رسالة واحدة تضم '+(m[1]==='1'?'القطعة':'كل القطع ('+m[1]+')')+'. يمكنك إخبارنا بالمقاسات هناك.';});
+    A(/^Your favorites list is full \((\d+)\)\. Send these first, then add more\.$/,function(m){return 'Votre liste de favoris est pleine ('+m[1]+'). Envoyez-la d’abord, puis ajoutez-en d’autres.';},function(m){return 'قائمة مفضلتك ممتلئة ('+m[1]+'). أرسلها أولًا ثم أضف المزيد.';});
+    A(/^(\d+)(?:[–-](\d+))? (month|months)$/,function(m){return m[1]+(m[2]?'–'+m[2]:'')+' mois';},function(m){return m[1]+(m[2]?'–'+m[2]:'')+' أشهر';});
+    A(/^(\d+)(?:[–-](\d+))? (year|years)$/,function(m){return m[1]+(m[2]?'–'+m[2]:'')+(m[1]==='1'&&!m[2]?' an':' ans');},function(m){return m[1]+(m[2]?'–'+m[2]:'')+' سنوات';});
+    function ageFix(t,li){
+      return t.replace(/(\d+)(?:[–-](\d+))? (months?|years?)/g,function(x,a,b,u){
+        var r=a+(b?'–'+b:'');
+        if(/^month/.test(u)) return r+(li===0?' mois':' أشهر');
+        return r+(li===0?((a==='1'&&!b)?' an':' ans'):' سنوات');
+      });
+    }
+    A(/^(\d+) pieces?$/,function(m){return m[1]+(m[1]==='1'?' pièce':' pièces');},function(m){return m[1]+' قطعة';});
+    A(/^(\d+) sets?$/,function(m){return m[1]+(m[1]==='1'?' ensemble':' ensembles');},function(m){return m[1]+' طقم';});
+    function tr(s,li){
+      if(/^[A-Z]{1,3}\d+ · \d/.test(s)) return ageFix(s,li);
+      var d=D[s]; if(d) return d[li];
+      for(var i=0;i<R.length;i++){ var m=s.match(R[i].re); if(m) return R[i].f[li](m); }
+      return null;
+    }
+    function idx(){ return L==='fr'?0:1; }
+    function off(){ return (typeof ui!=='undefined') && (ui.canEdit||ui.manage); }
+    var ATTR=['placeholder','aria-label'];
+    function walk(){
+      if(off()) return;
+      var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+        var p=n.parentNode; if(!p) return 3; var t=p.nodeName; if(t==='SCRIPT'||t==='STYLE'||t==='NOSCRIPT'||t==='TEXTAREA') return 3; if(p.closest && p.closest('.langmenu')) return 3; return 1; }});
+      var n, list=[]; while((n=w.nextNode())) list.push(n);
+      for(var i=0;i<list.length;i++){
+        var node=list[i], cur=node.nodeValue;
+        if(node._t!==undefined && cur===node._t){ /* still our translation */ }
+        else { node._o=cur; node._t=undefined; }
+        var orig=node._o;
+        if(L==='en'){ if(node._t!==undefined){ node.nodeValue=orig; node._t=undefined; } continue; }
+        if(L==='ar' && /^\s*(\+?\d[\d ]{7,}|[A-Za-z0-9.]*_[A-Za-z0-9_.]*)\s*$/.test(cur)){ var pp=node.parentNode; if(pp&&pp.style){ pp.style.direction='ltr'; pp.style.unicodeBidi='isolate'; } }
+        var key=orig.trim(); if(!key) continue;
+        var out=tr(key,idx()); if(out==null) continue;
+        var lead=orig.match(/^\s*/)[0], trail=orig.match(/\s*$/)[0];
+        var val=lead+out+trail; node.nodeValue=val; node._t=val;
+      }
+      var els=document.body.querySelectorAll('[placeholder],[aria-label]');
+      for(var j=0;j<els.length;j++){ var e=els[j];
+        for(var a=0;a<ATTR.length;a++){ var at=ATTR[a], v=e.getAttribute(at); if(v==null) continue;
+          var ok='_o_'+at, tk='_t_'+at;
+          if(e[tk]!==undefined && v===e[tk]){} else { e[ok]=v; e[tk]=undefined; }
+          var o=e[ok];
+          if(L==='en'){ if(e[tk]!==undefined){ e.setAttribute(at,o); e[tk]=undefined; } continue; }
+          var out2=tr(o.trim(),idx()); if(out2==null) continue; e.setAttribute(at,out2); e[tk]=out2; }
+      }
+    }
+    function fontArabic(){
+      if(document.getElementById('cbo-cairo')) return;
+      var l=document.createElement('link'); l.id='cbo-cairo'; l.rel='stylesheet'; l.href='https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&display=swap'; document.head.appendChild(l);
+    }
+    function setDoc(){
+      var de=document.documentElement; de.setAttribute('lang',L); de.setAttribute('dir',L==='ar'?'rtl':'ltr');
+      if(L==='ar') fontArabic();
+    }
+    var NAMES={en:'English',fr:'Français',ar:'العربية'};
+    var GLOBE='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d94f84" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c3 3 3 16.5 0 19M12 2.5c-3 3-3 16.5 0 19"/></svg>';
+    function closeMenu(){ if(menu) menu.hidden=true; }
+    function ensureBtn(){
+      if(off()) return;
+      var row=document.querySelector('header.bar .row'); if(!row) return;
+      if(row.querySelector('.langbtn')){ btn=row.querySelector('.langbtn'); menu=row.querySelector('.langmenu'); label(); return; }
+      btn=document.createElement('button'); btn.type='button'; btn.className='langbtn'; btn.setAttribute('aria-haspopup','true');
+      menu=document.createElement('div'); menu.className='langmenu'; menu.hidden=true;
+      ['en','fr','ar'].forEach(function(k){ var b=document.createElement('button'); b.type='button'; b.textContent=NAMES[k]; b.setAttribute('data-l',k); if(k===L) b.className='on'; menu.appendChild(b); });
+      btn.addEventListener('click',function(e){ e.stopPropagation(); menu.hidden=!menu.hidden; });
+      menu.addEventListener('click',function(e){ var k=e.target.getAttribute&&e.target.getAttribute('data-l'); if(!k) return; e.stopPropagation(); setLang(k); closeMenu(); });
+      row.insertBefore(menu,row.firstChild); row.insertBefore(btn,row.firstChild); label();
+    }
+    function label(){
+      if(!btn) return; btn.innerHTML=GLOBE+'<span>'+NAMES[L]+'</span><span style="font-size:.7rem">▾</span>';
+      if(menu){ var bs=menu.querySelectorAll('button'); for(var i=0;i<bs.length;i++) bs[i].className=(bs[i].getAttribute('data-l')===L)?'on':''; }
+    }
+    function setLang(k){
+      L=k; try{ localStorage.setItem(LK,k); }catch(e){}
+      setDoc(); run();
+    }
+    function run(){
+      if(busy) return; busy=true;
+      try{ ensureBtn(); walk(); }catch(e){} finally{ busy=false; }
+    }
+    function req(){ if(queued) return; queued=true; requestAnimationFrame(function(){ queued=false; run(); }); }
+    document.addEventListener('click',function(){ closeMenu(); });
+    try{ var s=localStorage.getItem(LK); if(s==='fr'||s==='ar') L=s; }catch(e){}
+    setDoc();
+    try{ new MutationObserver(req).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+    window.cbSetLang=setLang;
+    run();
   })();
 
   /* ---- favorites (hearts), shared between the Singles and Sets pages ---- */
