@@ -169,11 +169,11 @@ html[data-evt] .card{border-color:var(--ev-line)}
 .favtoast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(120px + env(safe-area-inset-bottom,0px));z-index:120;background:#2b2d42;color:#fff;padding:9px 16px;border-radius:999px;font-size:14px;font-weight:700;max-width:90vw;text-align:center}
 @media(prefers-reduced-motion:reduce){.heart svg{transition:none}}
 /* page tabs */
-#pg{display:flex;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid var(--line);justify-content:center}
-#pg a{flex:1;max-width:220px;text-align:center;padding:9px 10px;border-radius:999px;font-weight:800;font-size:.95rem;text-decoration:none;border:2px solid var(--line);color:var(--muted);background:#fff;line-height:1.15}
-#pg a.on{background:var(--pink-deep);border-color:var(--pink-deep);color:#fff}
-#pg small{display:block;font-weight:600;font-size:.7rem;opacity:.85;margin-top:2px}
-#pg.own{display:block;font-size:.85rem;font-weight:600;color:var(--blue-deep);text-align:center;background:var(--blue-soft)}
+.pgt{display:flex;gap:6px}
+.pgt a{flex:1;text-align:center;padding:7px 8px;border-radius:999px;font-weight:800;font-size:.84rem;text-decoration:none;border:2px solid var(--line);color:var(--muted);background:var(--surface);line-height:1.2;white-space:nowrap}
+.pgt a small{font-weight:600;opacity:.85;font-size:.74rem}
+.pgt a.on{background:var(--pink-deep);border-color:var(--pink-deep);color:#fff}
+#pg.own{display:block;padding:10px 14px;font-size:.85rem;font-weight:600;color:var(--blue-deep);text-align:center;background:var(--blue-soft)}
 @media(prefers-reduced-motion:reduce){#evt .d{animation:none}}
 .sizes{color:var(--muted);font-size:.85rem}
 .empty{border:2px dashed var(--line);border-radius:20px;padding:36px 20px;text-align:center;color:var(--muted);background:var(--surface)}
@@ -407,6 +407,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       h += '<div class="filters"><div class="frow"><div class="seg" role="group" aria-label="Boys or girls">' +
         [['all','All'],['boys','Boys'],['girls','Girls']].map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (ui.g===g[0]) + '">' + g[1] + '</button>'; }).join('') + '</div>' +
         '<label class="instock"><input type="checkbox" id="instock"' + (ui.instock?' checked':'') + '> In stock only</label></div>' +
+        pgTabsHtml() +
         '<div class="ages" role="group" aria-label="Age">' + '<button class="chip" data-agef="" aria-pressed="' + (ui.age==='') + '">All ages</button>' +
         AGES.map(function(a){ return '<button class="chip" data-agef="' + esc(a) + '" aria-pressed="' + (ui.age===a) + '">' + esc(a) + '</button>'; }).join('') + '</div></div>';
 
@@ -780,7 +781,12 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   favs.forEach(function(c){ makeThumb(itemByCode(c)); });
   updateFavBar();
 
-  /* ---- page tabs: Singles / Sets ---- */
+  /* ---- page tabs: Singles / Sets (shown inside the filter bar) ---- */
+  function pgTabsHtml(){
+    var pg=(work.shop&&work.shop.page)||'';
+    if((pg!=='singles'&&pg!=='sets')||ui.canEdit||ui.manage) return '';
+    return '<div class="pgt" role="navigation" aria-label="Singles or Sets"><a href="./"'+(pg==='singles'?' class="on" aria-current="page"':'')+'>Singles <small>&middot; one piece</small></a><a href="./sets.html"'+(pg==='sets'?' class="on" aria-current="page"':'')+'>Sets <small>&middot; top &amp; bottom</small></a></div>';
+  }
   (function(){
     var pg=(work.shop&&work.shop.page)||'';
     if(pg!=='singles'&&pg!=='sets') return;
@@ -790,10 +796,8 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       if(ui.canEdit||ui.manage){
         el.className='own';
         el.innerHTML='Managing the <b>'+(pg==='sets'?'SETS':'SINGLES')+'</b> page. After you save and publish, upload it to GitHub as <b>'+(pg==='sets'?'sets.html':'index.html')+'</b>.';
-        return;
-      }
-      el.className='';
-      el.innerHTML='<a href="./"'+(pg==='singles'?' class="on" aria-current="page"':'')+'>Singles<small>One piece: tops, shorts, trousers</small></a><a href="./sets.html"'+(pg==='sets'?' class="on" aria-current="page"':'')+'>Sets<small>Top &amp; bottom together</small></a>';
+      } else { el.className=''; el.innerHTML=''; el.style.display='none'; return; }
+      el.style.display='';
     }
     draw();
     try{ new MutationObserver(draw).observe(root,{childList:true}); }catch(e){}
