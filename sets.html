@@ -168,6 +168,17 @@ html[data-evt] .card{border-color:var(--ev-line)}
 .fv-empty{padding:30px 10px;text-align:center;opacity:.75}
 .favtoast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(120px + env(safe-area-inset-bottom,0px));z-index:120;background:#2b2d42;color:#fff;padding:9px 16px;border-radius:999px;font-size:14px;font-weight:700;max-width:90vw;text-align:center}
 @media(prefers-reduced-motion:reduce){.heart svg{transition:none}}
+/* thank-you card */
+#thx{position:fixed;inset:0;z-index:99997;background:rgba(43,45,66,.45);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .3s ease}
+#thx.in{opacity:1}
+#thx .box{background:#fff;border-radius:28px;padding:26px 22px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 60px -12px rgba(43,45,66,.45);transform:translateY(14px) scale(.97);transition:transform .35s cubic-bezier(.2,.8,.3,1)}
+#thx.in .box{transform:none}
+#thx img{width:100%;max-width:260px;height:auto;display:block;margin:0 auto 12px}
+#thx h2{margin:0;font-family:var(--display);font-weight:600;font-size:1.1rem;line-height:1.3;color:var(--pink-deep);white-space:nowrap}
+#thx h2 svg{vertical-align:-4px;margin:0 3px}
+#thx p{margin:10px 0 18px;font-size:1.02rem;color:var(--muted);font-weight:600}
+#thx button{font:inherit;font-weight:800;border:0;border-radius:999px;background:var(--pink-deep);color:#fff;padding:10px 30px;font-size:.95rem;cursor:pointer}
+@media (prefers-reduced-motion:reduce){#thx,#thx .box{transition:none}}
 /* loader + page fade */
 #boot{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;transition:opacity .45s ease}
 #boot.out{opacity:0;pointer-events:none}
@@ -1066,6 +1077,34 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       render();
     });
   }
+
+  /* ---- thank-you card after an order is sent on WhatsApp ---- */
+  var TKEY='cbo-thanks', thxPending=false, thxEl=null;
+  function thxFlagSet(){ try{ sessionStorage.setItem(TKEY,String(Date.now())); }catch(e){} thxPending=true; }
+  function thxFlagOn(){ if(thxPending) return true; try{ var v=parseInt(sessionStorage.getItem(TKEY)||'0',10); return !!v && (Date.now()-v)<1800000; }catch(e){ return false; } }
+  function thxFlagClear(){ thxPending=false; try{ sessionStorage.removeItem(TKEY); }catch(e){} }
+  function thxHeart(c){ return '<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="'+c+'" d="M12 20.5C5 15.8 2.5 12.5 2.5 9.2A4.7 4.7 0 0 1 7.2 4.5c1.9 0 3.6 1 4.8 2.7 1.2-1.7 2.9-2.7 4.8-2.7a4.7 4.7 0 0 1 4.7 4.7c0 3.3-2.5 6.6-9.5 11.3z"/></svg>'; }
+  function closeThx(){ if(!thxEl) return; var el=thxEl; thxEl=null; el.classList.remove('in'); document.removeEventListener('keydown',thxKey); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },320); }
+  function thxKey(e){ if(e.key==='Escape') closeThx(); }
+  function showThx(){
+    if(thxEl||!thxFlagOn()) return;
+    thxFlagClear();
+    var el=document.createElement('div'); el.id='thx'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','thx-h');
+    el.innerHTML='<div class="box"><img src="'+B.logo+'" alt="Cee\'s Babies Outlet"><h2 id="thx-h">'+thxHeart('#fb8cb1')+' Thank you for your order '+thxHeart('#30aafe')+'</h2><p>We\'ll confirm on WhatsApp shortly</p><button type="button" id="thx-x">Close</button></div>';
+    el.addEventListener('click',function(e){ if(e.target===el||e.target.id==='thx-x') closeThx(); });
+    document.body.appendChild(el); thxEl=el;
+    document.addEventListener('keydown',thxKey);
+    requestAnimationFrame(function(){ el.classList.add('in'); var b=document.getElementById('thx-x'); if(b&&b.focus) b.focus(); });
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest && e.target.closest('a.wa[href*="wa.me"]');
+    if(!a || ui.canEdit || ui.manage) return;
+    thxFlagSet();
+    setTimeout(function(){ if(thxPending && !document.hidden) showThx(); },3500);
+  },true);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden && thxPending) setTimeout(showThx,350); });
+  window.addEventListener('pageshow',function(){ if(thxFlagOn()) setTimeout(showThx,1800); });
+  if(thxFlagOn()) setTimeout(showThx,2200);
 
   /* ---- loading screen (walking feet) + smooth Singles/Sets switch ---- */
   var fromTab=false;
