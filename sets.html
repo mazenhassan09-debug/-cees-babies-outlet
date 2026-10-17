@@ -428,7 +428,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       if (it.sizes) h += '<div class="sizes">Sizes: ' + esc(it.sizes) + '</div>';
       var wa = waDigits();
       if (wa && avail){
-        var msg = "Hi Cee's Babies Outlet, I'd like to order:\nItem code: " + (it.code||'') + "\n" + (it.name||'this item') + ' - ' + genderLabel(it.gender) + (pr ? "\nPrice: " + pr : '') + ((it.ages||[]).length ? "\nSizes shown: " + it.ages.join(', ') : '') + (it.code ? "\nPhoto: https://luminous-moxie-eed1fb.netlify.app/photos/" + it.code + ".jpg" : '') + "\nSize I want: ";
+        var msg = "\uD83E\uDE77\uD83D\uDC99 *CEE'S BABIES OUTLET* \uD83D\uDC99\uD83E\uDE77\n\uD83D\uDECD\uFE0F *NEW ORDER*\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n*1. " + (it.code||'') + "* \u00B7 " + (it.name||'this item') + "\n   Size: ______   Qty: 1" + (pr ? "\n   " + pr : '') + (it.code ? "\n   \uD83D\uDCF7 https://luminous-moxie-eed1fb.netlify.app/photos/" + it.code + ".jpg" : '') + "\n\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n*1 item \u00B7 Total " + (pr || "to be priced") + "*\n(delivery not included)\n\n\uD83D\uDC64 Name: ______\n\uD83D\uDCCD Area / delivery or pickup: ______\n\n\uD83E\uDE77 Thank You \uD83D\uDC99";
         h += '<a class="btn sm wa" style="align-self:flex-start" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + ICON.wa.replace('<svg','<svg width="16" height="16"') + ' Order on WhatsApp</a>';
       }
     }
@@ -1076,14 +1076,12 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     return money(t.sum)+(t.unp?' + '+t.unp+' item'+(t.unp>1?'s':'')+' to be priced':'');
   }
   function favMessage(codes){
-    var m="Hi Cee's Babies Outlet, I'd like to order these favorites:\n";
+    var m="\uD83E\uDE77\uD83D\uDC99 *CEE'S BABIES OUTLET* \uD83D\uDC99\uD83E\uDE77\n\uD83D\uDECD\uFE0F *NEW ORDER*\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\n";
     codes.forEach(function(c,i){
       var f=fget(c), pr=money(f.price);
-      m+="\n"+(i+1)+") "+c+" - "+f.name+" ("+genderLabel(f.gender)+")"+(pr?" - "+pr:'');
-      if((f.ages||[]).length) m+="\nSizes shown: "+f.ages.join(', ');
-      m+="\nPhoto: "+PHOTO_BASE+c+".jpg\nSize I want: \n";
+      m+="*"+(i+1)+". "+c+"* \u00B7 "+f.name+"\n   Size: ______   Qty: 1"+(pr?"\n   "+pr:'')+"\n   \uD83D\uDCF7 "+PHOTO_BASE+c+".jpg\n\n";
     });
-    return m+"\nTotal: "+codes.length+" item"+(codes.length>1?'s':'')+" - "+totalText(codes)+" (items only)";
+    return m+"\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n*"+codes.length+" item"+(codes.length>1?'s':'')+" \u00B7 Total "+totalText(codes)+"*\n(delivery not included)\n\n\uD83D\uDC64 Name: ______\n\uD83D\uDCCD Area / delivery or pickup: ______\n\n\uD83E\uDE77 Thank You \uD83D\uDC99";
   }
   function drawFavs(){
     if(!favPanel) return;
