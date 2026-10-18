@@ -251,6 +251,15 @@ body.arrive #root{animation:pgin .38s ease both}
 .pgt a{flex:1;text-align:center;padding:7px 8px;border-radius:999px;font-weight:800;font-size:.84rem;text-decoration:none;border:2px solid var(--line);color:var(--muted);background:var(--surface);line-height:1.2;white-space:nowrap}
 .pgt a small{font-weight:600;opacity:.85;font-size:.74rem}
 .pgt a.on{background:var(--pink-deep);border-color:var(--pink-deep);color:#fff}
+/* ess tabs */
+.pgt{align-items:stretch}
+.pgt a{display:flex;flex-direction:column;align-items:center;justify-content:center;white-space:normal;padding:6px 5px;font-size:.8rem}
+.pgt a small{display:block;font-size:.7rem}
+.pgt a.ess{flex:1.35}
+.seg.cats button{padding:7px 11px;font-size:.84rem}
+.seg button[aria-pressed="true"][data-cat="all"]{background:var(--fg);color:#fff}
+.seg button[aria-pressed="true"][data-cat="wear"]{background:var(--pink);color:#fff}
+.seg button[aria-pressed="true"][data-cat="care"]{background:var(--blue);color:#fff}
 #pg.own{display:block;padding:10px 14px;font-size:.85rem;font-weight:600;color:var(--blue-deep);text-align:center;background:var(--blue-soft)}
 @media(prefers-reduced-motion:reduce){#evt .d{animation:none}}
 .sizes{color:var(--muted);font-size:.85rem}
@@ -368,6 +377,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   var migrated = false;
   work.shop = work.shop || {};
   work.shop.name = "Cee's Babies Outlet";
+  var isEss = work.shop.page==='essentials';
   if (!work.shop.whatsapp){ work.shop.whatsapp = '233556967767'; }
   function nextCode(){ var mx = (work.shop && parseInt(work.shop.codeFloor,10)) || 0; work.items.forEach(function(x){ var v = parseInt(String(x.code||'').replace(/\D/g,''),10) || 0; if (v > mx) mx = v; }); return 'CB' + ('00' + (mx+1)).slice(-3); }
   for (var ci = work.items.length - 1; ci >= 0; ci--){ if (!work.items[ci].code){ work.items[ci].code = nextCode(); migrated = true; } }
@@ -376,12 +386,14 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     if (!it.gender){ it.gender = 'unisex'; migrated = true; }
     if (!Array.isArray(it.ages)){ it.ages = []; migrated = true; }
     if (!Array.isArray(it.holds)) it.holds = [];
+    if (isEss && it.cat!=='wear' && it.cat!=='care'){ it.cat = 'wear'; migrated = true; }
   });
 
   loadAges();
-  var ui = {g:'all', age:'', instock:false, code:'', manage:false, canEdit:false, dirty:migrated, saving:false, note:'', confirmDel:null, confirmUndo:null, confirmCancel:null, resFor:null, holdInfo:{}, sales:null};
-  try { var st = JSON.parse(sessionStorage.getItem('cbo-ui')||'{}'); if (st.g) ui.g = st.g; if (st.age!=null) ui.age = st.age; ui.instock = !!st.instock; } catch(e){}
-  function keepUi(){ try{ sessionStorage.setItem('cbo-ui', JSON.stringify({g:ui.g, age:ui.age, instock:ui.instock})); }catch(e){} }
+  var ui = {g:'all', cat:'all', age:'', instock:false, code:'', manage:false, canEdit:false, dirty:migrated, saving:false, note:'', confirmDel:null, confirmUndo:null, confirmCancel:null, resFor:null, holdInfo:{}, sales:null};
+  try { var st = JSON.parse(sessionStorage.getItem('cbo-ui')||'{}'); if (st.g) ui.g = st.g; if (st.age!=null) ui.age = st.age; if (st.cat==='wear'||st.cat==='care') ui.cat = st.cat; ui.instock = !!st.instock; } catch(e){}
+  if (isEss){ ui.g='all'; ui.age=''; }
+  function keepUi(){ try{ sessionStorage.setItem('cbo-ui', JSON.stringify({g:ui.g, cat:ui.cat, age:ui.age, instock:ui.instock})); }catch(e){} }
 
   var root = document.getElementById('root');
   var fontHref = document.querySelector('link[href*="fonts.googleapis"]').href;
@@ -403,8 +415,11 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   function newUntil(it){ return new Date((it.addedAt||0) + NEW_DAYS*DAY).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
   function genderLabel(g){ return g==='boys'?'Boys':g==='girls'?'Girls':'Boys & Girls'; }
   function matches(it){
+    if (isEss){ if (ui.cat!=='all' && it.cat!==ui.cat) return false; }
+    else {
     if (ui.g!=='all' && it.gender!==ui.g && it.gender!=='unisex') return false;
     if (ui.age && (it.ages||[]).indexOf(ui.age)<0) return false;
+    }
     if (ui.instock && !isAvail(it)) return false;
     if (ui.code && String(it.code||'').toLowerCase().indexOf(ui.code.toLowerCase()) < 0) return false;
     return true;
@@ -432,9 +447,9 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         '<input type="text" id="n-' + it.id + '" data-i="' + i + '" data-k="name" value="' + esc(it.name) + '" placeholder="Item name" aria-label="Item name">' +
         '<div class="two"><input type="number" min="0" step="0.01" id="p-' + it.id + '" data-i="' + i + '" data-k="price" value="' + esc(it.price) + '" placeholder="Price GH₵" aria-label="Price in cedis">' +
         '<input type="text" id="s-' + it.id + '" data-i="' + i + '" data-k="sizes" value="' + esc(it.sizes) + '" placeholder="Sizes" aria-label="Sizes"></div>' +
-        '<select id="g-' + it.id + '" data-i="' + i + '" data-k="gender" aria-label="Boys or girls">' +
-          ['boys','girls','unisex'].map(function(g){ return '<option value="' + g + '"' + (it.gender===g?' selected':'') + '>' + genderLabel(g) + '</option>'; }).join('') + '</select>' +
-        '<div class="agepick" role="group" aria-label="Ages">' + AGES.map(function(a){ return '<button type="button" class="chip" data-agei="' + i + '" data-age="' + esc(a) + '" aria-pressed="' + (ages.indexOf(a)>=0) + '">' + esc(a) + '</button>'; }).join('') + '</div>' +
+        (isEss ? '<select id="g-' + it.id + '" data-i="' + i + '" data-k="cat" aria-label="Category">' + [['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(c){ return '<option value="' + c[0] + '"' + (it.cat===c[0]?' selected':'') + '>' + c[1] + '</option>'; }).join('') + '</select>' : '<select id="g-' + it.id + '" data-i="' + i + '" data-k="gender" aria-label="Boys or girls">' +
+          ['boys','girls','unisex'].map(function(g){ return '<option value="' + g + '"' + (it.gender===g?' selected':'') + '>' + genderLabel(g) + '</option>'; }).join('') + '</select>') +
+        (isEss ? '' : '<div class="agepick" role="group" aria-label="Ages">' + AGES.map(function(a){ return '<button type="button" class="chip" data-agei="' + i + '" data-age="' + esc(a) + '" aria-pressed="' + (ages.indexOf(a)>=0) + '">' + esc(a) + '</button>'; }).join('') + '</div>') +
         '<div class="stock"><span class="field">In stock</span>' +
         '<input type="number" min="0" step="1" id="q-' + it.id + '" data-i="' + i + '" data-k="qty" value="' + q + '" aria-label="Quantity in stock">' +
         '<button class="btn sm ghost" data-plus="' + i + '" aria-label="Add one">+1</button></div>' +
@@ -482,10 +497,10 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       h += '<section class="panel"><h2>Add clothes</h2>' +
         '<div class="field" style="flex:1 1 260px">+ Add photos (tap to choose from your gallery)<input class="filepick" type="file" id="add-files" accept="image/*" multiple></div>' +
         '<div class="row">' +
-        '<span class="meter" style="flex:1 1 260px">Each photo becomes one item and goes into New Arrivals for 30 days, then moves to All Clothes. Set boys or girls, ages, price and stock for each one below.</span></div>' +
+        '<span class="meter" style="flex:1 1 260px">Each photo becomes one item and goes into New Arrivals for 30 days, then moves to All Clothes. ' + (isEss ? 'Pick Wear &amp; Style or Feeding &amp; Care, then set the price and stock for each one below.' : 'Set boys or girls, ages, price and stock for each one below.') + '</span></div>' +
         '<div class="row" style="align-items:flex-end"><div class="field" style="flex:1 1 240px;max-width:360px">WhatsApp number for orders<input type="tel" id="wa" value="' + esc(work.shop.whatsapp) + '" placeholder="055 696 7767"></div>' +
         '<div class="field" style="width:170px">Reservations last (hours)<input type="number" min="1" step="1" id="holdh" value="' + holdHours() + '"></div></div>' +
-        '<div class="field">Age groups (separate with commas, in the order you want them shown)<input type="text" id="agelist" value="' + esc(AGES.join(', ')) + '"></div>' +
+        (isEss ? '' : '<div class="field">Age groups (separate with commas, in the order you want them shown)<input type="text" id="agelist" value="' + esc(AGES.join(', ')) + '"></div>') +
         '<div class="meter">Storage used: ' + (used/1048576).toFixed(1) + ' MB of 15 MB</div></section>';
       h += '<input type="search" id="codeq" class="codeq" placeholder="Find by item code (e.g. CB012)" value="' + esc(ui.code) + '" aria-label="Find by item code">';
       var sorted = items.filter(function(p){ return !ui.code || String(p[0].code||'').toLowerCase().indexOf(ui.code.toLowerCase()) >= 0; }).sort(function(a,b){ return (b[0].addedAt||0)-(a[0].addedAt||0); });
@@ -499,23 +514,23 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         '<div class="badges"><span class="badge">' + ICON.van.replace('<svg','<svg width="18" height="18"') + ' Pickup &amp; deliveries available</span></div></div>' +
         '<img class="mascot r" src="' + B.blue + '" alt=""></section>';
 
-      h += '<div class="filters"><div class="frow"><div class="seg" role="group" aria-label="Boys or girls">' +
-        [['all','All'],['boys','Boys'],['girls','Girls']].map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (ui.g===g[0]) + '">' + g[1] + '</button>'; }).join('') + '</div>' +
+      h += '<div class="filters"><div class="frow"><div class="seg' + (isEss?' cats':'') + '" role="group" aria-label="' + (isEss?'Category':'Boys or girls') + '">' +
+        (isEss ? [['all','All'],['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(g){ return '<button data-cat="' + g[0] + '" aria-pressed="' + (ui.cat===g[0]) + '">' + g[1] + '</button>'; }).join('') : [['all','All'],['boys','Boys'],['girls','Girls']].map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (ui.g===g[0]) + '">' + g[1] + '</button>'; }).join('')) + '</div>' +
         '<label class="instock"><input type="checkbox" id="instock"' + (ui.instock?' checked':'') + '> In stock only</label></div>' +
         pgTabsHtml() +
-        '<div class="ages" role="group" aria-label="Age">' + '<button class="chip" data-agef="" aria-pressed="' + (ui.age==='') + '">All ages</button>' +
+        (isEss?'<div class="ages" role="group" aria-label="Age" hidden style="display:none">':'<div class="ages" role="group" aria-label="Age">') + '<button class="chip" data-agef="" aria-pressed="' + (ui.age==='') + '">All ages</button>' +
         AGES.map(function(a){ return '<button class="chip" data-agef="' + esc(a) + '" aria-pressed="' + (ui.age===a) + '">' + esc(a) + '</button>'; }).join('') + '</div></div>';
 
       h += '<input type="search" id="codeq" class="codeq" placeholder="Find by item code (e.g. CB012)" value="' + esc(ui.code) + '" aria-label="Find by item code">';
       var shown = items.filter(function(p){ return matches(p[0]); });
       var fresh = shown.filter(function(p){ return isNew(p[0]); }).sort(function(a,b){ return b[0].addedAt-a[0].addedAt; });
       var rest = shown.filter(function(p){ return !isNew(p[0]); }).sort(function(a,b){ return b[0].addedAt-a[0].addedAt; });
-      var filtered = ui.g!=='all' || ui.age || ui.instock || ui.code;
+      var filtered = ui.g!=='all' || ui.cat!=='all' || ui.age || ui.instock || ui.code;
       if (!work.items.length){
         h += '<section class="sec"><div class="empty"><b>New pieces coming soon</b>' + (ui.canEdit ? 'Tap “Manage shop”, then “Add photos” to put your first clothes up.' : 'Check back shortly, or message us on WhatsApp.') + '</div></section>';
       } else {
         h += section('<span class="p">New</span> Arrivals', 'Added in the last 30 days', fresh, true, filtered ? 'No new arrivals match these filters.' : 'No new arrivals right now. Check back soon.');
-        h += section('All Clothes', rest.length + ' piece' + (rest.length===1?'':'s'), rest, false, filtered ? 'Nothing here matches these filters.' : 'Pieces move here 30 days after they arrive.');
+        h += section(isEss?'All Items':'All Clothes', rest.length + ' piece' + (rest.length===1?'':'s'), rest, false, filtered ? 'Nothing here matches these filters.' : 'Pieces move here 30 days after they arrive.');
       }
     }
 
@@ -831,6 +846,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     P('In stock only','En stock uniquement','المتوفر فقط');
     P('Singles','Pièces seules','قطع منفردة'); P('Sets','Ensembles','أطقم');
     P('· one piece','· une pièce','· قطعة واحدة'); P('· top & bottom','· haut et bas','· علوي وسفلي');
+    P('Accessories & Essentials','Accessoires et essentiels','إكسسوارات ومستلزمات'); P('Wear & Style','Vêtements et style','ملابس وأناقة'); P('Feeding & Care','Repas et soins','التغذية والعناية'); P('Category','Catégorie','الفئة'); P('All Items','Tous les articles','كل المنتجات'); P('Singles, Sets or Accessories & Essentials','Pièces seules, ensembles ou accessoires et essentiels','قطع منفردة أو أطقم أو إكسسوارات ومستلزمات');
     P('All ages','Tous les âges','كل الأعمار');
     P('Out of stock','Épuisé','نفد'); P('In stock','En stock','متوفر'); P('Reserved','Réservé','محجوز'); P('New','Nouveau','جديد');
     P('Order on WhatsApp','Commander sur WhatsApp','اطلب عبر واتساب');
@@ -1154,18 +1170,18 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   /* ---- page tabs: Singles / Sets (shown inside the filter bar) ---- */
   function pgTabsHtml(){
     var pg=(work.shop&&work.shop.page)||'';
-    if((pg!=='singles'&&pg!=='sets')||ui.canEdit||ui.manage) return '';
-    return '<div class="pgt" role="navigation" aria-label="Singles or Sets"><a href="./"'+(pg==='singles'?' class="on" aria-current="page"':'')+'>Singles <small>&middot; one piece</small></a><a href="./sets.html"'+(pg==='sets'?' class="on" aria-current="page"':'')+'>Sets <small>&middot; top &amp; bottom</small></a></div>';
+    if((pg!=='singles'&&pg!=='sets'&&pg!=='essentials')||ui.canEdit||ui.manage) return '';
+    return '<div class="pgt" role="navigation" aria-label="Singles, Sets or Accessories &amp; Essentials"><a href="./"'+(pg==='singles'?' class="on" aria-current="page"':'')+'>Singles <small>&middot; one piece</small></a><a href="./sets.html"'+(pg==='sets'?' class="on" aria-current="page"':'')+'>Sets <small>&middot; top &amp; bottom</small></a><a href="./essentials.html" class="ess'+(pg==='essentials'?' on" aria-current="page"':'"')+'>Accessories &amp; Essentials</a></div>';
   }
   (function(){
     var pg=(work.shop&&work.shop.page)||'';
-    if(pg!=='singles'&&pg!=='sets') return;
+    if(pg!=='singles'&&pg!=='sets'&&pg!=='essentials') return;
     var el=document.createElement('div'); el.id='pg';
     root.parentNode.insertBefore(el,root);
     function draw(){
       if(ui.canEdit||ui.manage){
         el.className='own';
-        el.innerHTML='Managing the <b>'+(pg==='sets'?'SETS':'SINGLES')+'</b> page. After you save and publish, upload it to GitHub as <b>'+(pg==='sets'?'sets.html':'index.html')+'</b>.';
+        el.innerHTML='Managing the <b>'+(pg==='sets'?'SETS':pg==='essentials'?'ACCESSORIES &amp; ESSENTIALS':'SINGLES')+'</b> page. After you save and publish, upload it to GitHub as <b>'+(pg==='sets'?'sets.html':pg==='essentials'?'essentials.html':'index.html')+'</b>.';
       } else { el.className=''; el.innerHTML=''; el.style.display='none'; return; }
       el.style.display='';
     }
@@ -1183,6 +1199,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   root.addEventListener('click', function(e){
     var t = e.target.closest('button'); if (!t) return;
     if (t.dataset.g){ ui.g = t.dataset.g; keepUi(); render(); }
+    else if (t.dataset.cat){ ui.cat = t.dataset.cat; keepUi(); render(); }
     else if (t.dataset.agef!=null){ ui.age = t.dataset.agef; keepUi(); render(); }
     else if (t.id==='mgr'){ ui.manage = !ui.manage; ui.confirmDel=null; try{sessionStorage.setItem('cbo-manage', ui.manage?'1':'0');}catch(x){} render(); window.scrollTo(0,0); }
     else if (t.dataset.agei!=null){
@@ -1257,13 +1274,14 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     if (t.id==='wa'){ work.shop.whatsapp = t.value; changed(); updateBar(); return; }
     if (t.id==='holdh'){ work.shop.holdHours = Math.max(1, parseFloat(t.value)||24); changed(); updateBar(); return; }
     if (t.id==='res-name' || t.id==='agelist') return;
-    if (t.dataset.k && t.dataset.k!=='qty' && t.dataset.k!=='gender'){ work.items[+t.dataset.i][t.dataset.k] = t.value; changed(); updateBar(); }
+    if (t.dataset.k && t.dataset.k!=='qty' && t.dataset.k!=='gender' && t.dataset.k!=='cat'){ work.items[+t.dataset.i][t.dataset.k] = t.value; changed(); updateBar(); }
   });
   root.addEventListener('change', function(e){
     var t = e.target;
     if (t.id==='instock'){ ui.instock = t.checked; keepUi(); render(); return; }
     if (t.dataset.k==='qty'){ var it = work.items[+t.dataset.i]; it.qty = Math.max(0, parseInt(t.value,10)||0); it.available = it.qty > 0; changed(); render(); }
     if (t.dataset.k==='gender'){ work.items[+t.dataset.i].gender = t.value; changed(); render(); }
+    if (t.dataset.k==='cat'){ work.items[+t.dataset.i].cat = t.value; changed(); render(); }
     if (t.id==='add-files' && t.files.length){ addFiles(Array.prototype.slice.call(t.files)); t.value=''; }
     if (t.id==='agelist'){
       var list = t.value.split(/[,،]/).map(function(x){ return x.trim(); }).filter(function(x,i,arr){ return x && arr.indexOf(x)===i; });
@@ -1305,7 +1323,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       return p.then(function(){ return toJpeg(f).then(function(img){
         var name = f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').trim();
         if (/^[0-9a-f ]{20,}$/i.test(name) || /^(img|image|photo|whatsapp image)\b/i.test(name)) name = '';
-        work.items.unshift({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name: name, price:'', sizes:'', gender:'unisex', ages:[], holds:[], qty:1, available:true, addedAt: Date.now(), code: nextCode(), img: img});
+        work.items.unshift({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name: name, price:'', sizes:'', gender:'unisex', cat: isEss?'wear':undefined, ages:[], holds:[], qty:1, available:true, addedAt: Date.now(), code: nextCode(), img: img});
       }, function(){ skipped++; }); });
     }, Promise.resolve()).then(function(){
       changed();
@@ -1362,7 +1380,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   function buildDoc(data){
     var json = JSON.stringify(data).replace(/</g,'\\u003c');
     return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" type="image/png" href="/favicon.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cees Babies"><meta name="description" content="Premium kids&#39; clothing in Spintex, Accra. Boys&#39; and girls&#39; styles, pickup &amp; delivery available."><meta property="og:type" content="website"><meta property="og:site_name" content="Cee&#39;s Babies Outlet"><meta property="og:title" content="Cee&#39;s Babies Outlet"><meta property="og:description" content="Premium kids&#39; clothing"><meta property="og:image" content="https://cees-babies-outlet.vercel.app/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="google-site-verification" content="27tbYgG0QrJ6cZwOMCvUDLU1dLMPKI9apPCstqY2iFI"><style>' + RESET + '</style></head><body>' +
-      '<title>' + (data.shop && data.shop.page==='sets' ? 'Cee\'s Babies Outlet Sets' : 'Cee\'s Babies Outlet') + '</title>\n<link rel="stylesheet" href="' + esc(fontHref) + '">\n' +
+      '<title>' + (data.shop && data.shop.page==='sets' ? 'Cee\'s Babies Outlet Sets' : data.shop && data.shop.page==='essentials' ? 'Cee\'s Babies Outlet Accessories &amp; Essentials' : 'Cee\'s Babies Outlet') + '</title>\n<link rel="stylesheet" href="' + esc(fontHref) + '">\n' +
       '<style id="page-style">' + styleText + '</style>\n\n<div id="root"></div>\n\n' +
       '<script type="application/json" id="brand">' + brandText + '<\/script>\n\n' +
       '<script type="application/json" id="catalog">' + json + '<\/script>\n\n' +
@@ -1439,7 +1457,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     if(!a||a.classList.contains('on')||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button) return;
     e.preventDefault();
     var href=a.getAttribute('href');
-    var fwd=/sets/i.test(href);
+    var curP=(work.shop&&work.shop.page)||'singles', cur=curP==='sets'?1:curP==='essentials'?2:0, tgt=/essentials/i.test(href)?2:/sets/i.test(href)?1:0; var fwd=tgt>cur;
     try{ sessionStorage.setItem('cbo-nav','1'); sessionStorage.setItem('cbo-dir',fwd?'f':'b'); }catch(x){}
     document.body.classList.add('leaving', fwd?'gof':'gob');
     setTimeout(function(){ location.href=href; },230);
