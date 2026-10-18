@@ -328,6 +328,23 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
 }
 @media (prefers-reduced-motion:no-preference){.hero .mascot{animation:bob 4s ease-in-out infinite}.hero .mascot.r{animation-delay:-2s}}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* share mode */
+.sharemode .a2hs,.sharemode .favbar,.sharemode .musicbtn{display:none!important}
+.sm-banner{position:sticky;top:0;z-index:70;background:linear-gradient(90deg,#fb8cb1,#30aafe);color:#fff;font-family:var(--display,inherit);font-weight:800;font-size:.95rem;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sm-banner small{font-weight:600;opacity:.95;font-size:.78rem;margin-left:4px}
+.sm-exit{border:0;border-radius:999px;background:rgba(255,255,255,.28);color:#fff;font-weight:800;padding:6px 14px;font-size:.85rem;cursor:pointer}
+.sm-tick{position:absolute;left:8px;top:8px;z-index:6;width:34px;height:34px;border-radius:50%;background:#fff;border:2.5px solid #30aafe;box-shadow:0 2px 8px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1;color:#fff;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sm-tick.on{background:#30aafe}
+.card.sm-on{outline:3px solid #30aafe;outline-offset:-3px;border-radius:18px}
+.sm-one{position:absolute;right:8px;bottom:8px;z-index:6;background:#25d366;color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:800;font-size:.74rem;box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer}
+.sm-bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:80;display:flex;gap:8px;align-items:stretch}
+.sm-bar[hidden]{display:none}
+.sm-send{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:#25d366;color:#fff;border:0;border-radius:18px;padding:12px 16px;font-family:var(--display,inherit);font-weight:800;font-size:1rem;box-shadow:0 6px 20px rgba(0,0,0,.3);cursor:pointer;text-align:left}
+.sm-send span{font-weight:600;font-size:.78rem;opacity:.95}
+.sm-clear{border:0;border-radius:18px;background:#fff;color:#444;font-weight:800;padding:0 16px;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer}
+.sm-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:90;background:#333;color:#fff;border-radius:14px;padding:10px 16px;font-size:.85rem;max-width:86vw;text-align:center}
+.sharemode.sm-has{padding-bottom:96px}
 </style>
 
 <div id="root"></div>
@@ -1441,6 +1458,83 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       }
     }).catch(function(){});
   }
+})();
+
+/* share mode */
+(function(){
+  var on=false;
+  try{ if(/[?&]share(=|&|$)/.test(location.search)) sessionStorage.setItem('cbo-share','1'); on=sessionStorage.getItem('cbo-share')==='1'; }catch(e){ on=/[?&]share(=|&|$)/.test(location.search); }
+  if(!on) return;
+  var root=document.getElementById('root'); if(!root) return;
+  var cat; try{ cat=JSON.parse(document.getElementById('catalog').textContent); }catch(e){ return; }
+  var items={}; (cat.items||[]).forEach(function(it){ if(it.code) items[it.code]=it; });
+  var PHOTO='https://luminous-moxie-eed1fb.netlify.app/photos/', MAX=30, sel=[], toastEl=null, toastT=0;
+  document.body.classList.add('sharemode');
+  var ban=document.createElement('div'); ban.className='sm-banner';
+  ban.innerHTML='<span>📤 Share mode<small>tap the circles, then Send</small></span><button type="button" class="sm-exit">Exit</button>';
+  document.body.insertBefore(ban,document.body.firstChild);
+  var bar=document.createElement('div'); bar.className='sm-bar'; bar.hidden=true;
+  bar.innerHTML='<button type="button" class="sm-send"><b></b><span>to WhatsApp</span></button><button type="button" class="sm-clear">Clear</button>';
+  document.body.appendChild(bar);
+  function toast(m){ if(toastEl) toastEl.remove(); toastEl=document.createElement('div'); toastEl.className='sm-toast'; toastEl.textContent=m; document.body.appendChild(toastEl); clearTimeout(toastT); toastT=setTimeout(function(){ if(toastEl){ toastEl.remove(); toastEl=null; } },3200); }
+  function codeOf(c){ var h=c.querySelector('[data-fav]'); return h?h.getAttribute('data-fav'):''; }
+  function paint(){
+    var cards=root.querySelectorAll('.card');
+    for(var i=0;i<cards.length;i++){
+      var c=cards[i], code=c.getAttribute('data-smcode'); if(!code) continue;
+      var t=c.querySelector('.sm-tick'), is=sel.indexOf(code)>=0;
+      c.classList.toggle('sm-on',is); if(t){ t.classList.toggle('on',is); t.textContent=is?'✓':''; t.setAttribute('aria-pressed',is); }
+    }
+    bar.hidden=!sel.length; document.body.classList.toggle('sm-has',sel.length>0);
+    bar.querySelector('b').textContent='Send '+sel.length+' picture'+(sel.length===1?'':'s');
+  }
+  function decorate(){
+    var cards=root.querySelectorAll('.card');
+    for(var i=0;i<cards.length;i++){
+      var c=cards[i], ph=c.querySelector('.ph'); if(!ph) continue;
+      var code=codeOf(c); if(!code||!items[code]) continue;
+      if(c.getAttribute('data-smcode')===code && ph.querySelector('.sm-tick')) continue;
+      c.setAttribute('data-smcode',code);
+      var t=document.createElement('button'); t.type='button'; t.className='sm-tick'; t.setAttribute('aria-label','Pick this picture');
+      var s=document.createElement('button'); s.type='button'; s.className='sm-one'; s.textContent='Send this';
+      ph.appendChild(t); ph.appendChild(s);
+    }
+    paint();
+  }
+  function toFile(it){
+    var m=/^data:([^;]+);base64,(.*)$/.exec(it.img||''); if(!m) return null;
+    var bin=atob(m[2]), n=bin.length, u=new Uint8Array(n); for(var i=0;i<n;i++) u[i]=bin.charCodeAt(i);
+    return new File([u],it.code+'.jpg',{type:m[1]});
+  }
+  function line(it){ var p=Number(it.price), pr=(it.price===''||it.price==null||isNaN(p))?'':'GH₵'+p; var ag=(it.ages||[]).join(', '); return it.code+' · '+(it.name||'')+(pr?' · '+pr:'')+(ag?' · '+ag:''); }
+  function caption(list){ return '🩷💙 Cee’s Babies Outlet 💙🩷\n'+list.map(line).join('\n'); }
+  function linkFallback(list){
+    var t=caption(list)+'\n\n'+list.map(function(it){ return '📷 '+PHOTO+it.code+'.jpg'; }).join('\n');
+    var u='https://wa.me/?text='+encodeURIComponent(t);
+    toast('This phone can’t send pictures directly, so I’m sending photo links instead.');
+    var w=null; try{ w=window.open(u,'_blank'); }catch(e){} if(!w) location.href=u;
+  }
+  function shareCodes(codes,clearAfter){
+    var list=codes.map(function(c){ return items[c]; }).filter(Boolean); if(!list.length) return;
+    var files=[]; list.forEach(function(it){ var f=toFile(it); if(f) files.push(f); });
+    var ok=false; try{ ok=files.length===list.length && navigator.share && navigator.canShare && navigator.canShare({files:files}); }catch(e){}
+    if(!ok){ linkFallback(list); return; }
+    navigator.share({files:files,text:caption(list)}).then(function(){ if(clearAfter){ sel.length=0; paint(); } }).catch(function(e){ if(e&&e.name==='AbortError') return; linkFallback(list); });
+  }
+  document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest('.sm-tick,.sm-one,.sm-send,.sm-clear,.sm-exit'); if(!el) return;
+    e.preventDefault(); e.stopPropagation();
+    if(el.classList.contains('sm-exit')){ try{ sessionStorage.removeItem('cbo-share'); }catch(x){} location.href=location.pathname; return; }
+    if(el.classList.contains('sm-clear')){ sel.length=0; paint(); return; }
+    if(el.classList.contains('sm-send')){ shareCodes(sel.slice(),true); return; }
+    var card=el.closest('.card'), code=card&&card.getAttribute('data-smcode'); if(!code) return;
+    if(el.classList.contains('sm-one')){ shareCodes([code],false); return; }
+    var i=sel.indexOf(code);
+    if(i>=0) sel.splice(i,1); else { if(sel.length>=MAX){ toast('You can pick up to '+MAX+' at a time.'); return; } sel.push(code); }
+    paint();
+  },true);
+  var mo=new MutationObserver(function(){ mo.disconnect(); decorate(); mo.observe(root,{childList:true,subtree:true}); });
+  decorate(); mo.observe(root,{childList:true,subtree:true});
 })();
 </script>
 </body></html>
