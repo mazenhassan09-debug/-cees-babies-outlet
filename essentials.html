@@ -1492,10 +1492,10 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   var root=document.getElementById('root'); if(!root) return;
   var cat; try{ cat=JSON.parse(document.getElementById('catalog').textContent); }catch(e){ return; }
   var items={}; (cat.items||[]).forEach(function(it){ if(it.code) items[it.code]=it; });
-  var PHOTO='https://luminous-moxie-eed1fb.netlify.app/photos/', MAX=30, sel=[], toastEl=null, toastT=0;
+  var PHOTO='https://luminous-moxie-eed1fb.netlify.app/photos/', MAX=30, sel=(function(){ try{ var a=JSON.parse(sessionStorage.getItem('cbo-sel')||'[]'); return Array.isArray(a)?a.filter(function(x){ return typeof x==='string'; }).slice(0,30):[]; }catch(e){ return []; } })(), toastEl=null, toastT=0;
   document.body.classList.add('sharemode');
   var ban=document.createElement('div'); ban.className='sm-banner';
-  ban.innerHTML='<span>📤 Share mode<small>tap the circles, then Send</small></span><button type="button" class="sm-exit">Exit</button>';
+  ban.innerHTML='<span>📤 Share mode<small>tap the circles, then Send. Your picks follow you between pages</small></span><button type="button" class="sm-exit">Exit</button>';
   document.body.insertBefore(ban,document.body.firstChild);
   var bar=document.createElement('div'); bar.className='sm-bar'; bar.hidden=true;
   bar.innerHTML='<button type="button" class="sm-send"><b></b><span>to WhatsApp</span></button><button type="button" class="sm-clear">Clear</button>';
@@ -1503,6 +1503,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   function toast(m){ if(toastEl) toastEl.remove(); toastEl=document.createElement('div'); toastEl.className='sm-toast'; toastEl.textContent=m; document.body.appendChild(toastEl); clearTimeout(toastT); toastT=setTimeout(function(){ if(toastEl){ toastEl.remove(); toastEl=null; } },3200); }
   function codeOf(c){ var h=c.querySelector('[data-fav]'); return h?h.getAttribute('data-fav'):''; }
   function paint(){
+    try{ sessionStorage.setItem('cbo-sel',JSON.stringify(sel)); }catch(e){}
     var cards=root.querySelectorAll('.card');
     for(var i=0;i<cards.length;i++){
       var c=cards[i], code=c.getAttribute('data-smcode'); if(!code) continue;
@@ -1530,6 +1531,10 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var bin=atob(m[2]), n=bin.length, u=new Uint8Array(n); for(var i=0;i<n;i++) u[i]=bin.charCodeAt(i);
     return new File([u],it.code+'.jpg',{type:m[1]});
   }
+  function srcFor(it){
+    if(it.img) return Promise.resolve(it.img);
+    return fetch(PHOTO+it.code+'.jpg',{mode:'cors'}).then(function(r){ if(!r.ok) throw new Error('http'); return r.blob(); }).then(function(b){ return URL.createObjectURL(b); });
+  }
   function toLabeled(it){
     return new Promise(function(res,rej){
       var im=new Image();
@@ -1545,7 +1550,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         }catch(e){ rej(e); }
       };
       im.onerror=function(){ rej(new Error('img')); };
-      im.src=it.img||'';
+      srcFor(it).then(function(u){ im.src=u; },rej);
     });
   }
   function line(it){ return it.code; }
@@ -1557,7 +1562,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var w=null; try{ w=window.open(u,'_blank'); }catch(e){} if(!w) location.href=u;
   }
   function shareCodes(codes,clearAfter){
-    var list=codes.map(function(c){ return items[c]; }).filter(Boolean); if(!list.length) return;
+    var list=codes.map(function(c){ return items[c]||{code:c}; }); if(!list.length) return;
     Promise.all(list.map(function(it){ return toLabeled(it).catch(function(){ return toFile(it); }); })).then(function(files){
       files=files.filter(Boolean);
       var ok=false; try{ ok=files.length===list.length && navigator.share && navigator.canShare && navigator.canShare({files:files}); }catch(e){}
@@ -1568,7 +1573,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   document.addEventListener('click',function(e){
     var el=e.target.closest&&e.target.closest('.sm-tick,.sm-one,.sm-send,.sm-clear,.sm-exit'); if(!el) return;
     e.preventDefault(); e.stopPropagation();
-    if(el.classList.contains('sm-exit')){ try{ sessionStorage.removeItem('cbo-share'); }catch(x){} location.href=location.pathname; return; }
+    if(el.classList.contains('sm-exit')){ try{ sessionStorage.removeItem('cbo-share'); sessionStorage.removeItem('cbo-sel'); }catch(x){} location.href=location.pathname; return; }
     if(el.classList.contains('sm-clear')){ sel.length=0; paint(); return; }
     if(el.classList.contains('sm-send')){ shareCodes(sel.slice(),true); return; }
     var card=el.closest('.card'), code=card&&card.getAttribute('data-smcode'); if(!code) return;
