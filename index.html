@@ -1531,9 +1531,10 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var bin=atob(m[2]), n=bin.length, u=new Uint8Array(n); for(var i=0;i<n;i++) u[i]=bin.charCodeAt(i);
     return new File([u],it.code+'.jpg',{type:m[1]});
   }
+  var lastErr='';
   function srcFor(it){
     if(it.img) return Promise.resolve(it.img);
-    return fetch(PHOTO+it.code+'.jpg',{mode:'cors'}).then(function(r){ if(!r.ok) throw new Error('http'); return r.blob(); }).then(function(b){ return URL.createObjectURL(b); });
+    return fetch(PHOTO+it.code+'.jpg?cors=1',{mode:'cors',cache:'reload'}).then(function(r){ if(!r.ok) throw new Error('error '+r.status); return r.blob(); }).then(function(b){ return URL.createObjectURL(b); });
   }
   function toLabeled(it){
     return new Promise(function(res,rej){
@@ -1558,12 +1559,14 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   function linkFallback(list){
     var t=caption(list)+'\n\n'+list.map(function(it){ return '📷 '+PHOTO+it.code+'.jpg'; }).join('\n');
     var u='https://wa.me/?text='+encodeURIComponent(t);
-    toast('This phone can’t send pictures directly, so I’m sending photo links instead.');
-    var w=null; try{ w=window.open(u,'_blank'); }catch(e){} if(!w) location.href=u;
+    toast('Some pictures couldn’t be loaded'+(lastErr?' ('+lastErr+')':'')+', so I’m sending photo links instead.');
+    var go=function(){ var w=null; try{ w=window.open(u,'_blank'); }catch(e){} if(!w) location.href=u; };
+    if(navigator.share){ navigator.share({text:t}).catch(function(e){ if(e&&e.name==='AbortError') return; go(); }); return; }
+    go();
   }
   function shareCodes(codes,clearAfter){
     var list=codes.map(function(c){ return items[c]||{code:c}; }); if(!list.length) return;
-    Promise.all(list.map(function(it){ return toLabeled(it).catch(function(){ return toFile(it); }); })).then(function(files){
+    Promise.all(list.map(function(it){ return toLabeled(it).catch(function(e){ lastErr=(e&&e.message)||'error'; return toFile(it); }); })).then(function(files){
       files=files.filter(Boolean);
       var ok=false; try{ ok=files.length===list.length && navigator.share && navigator.canShare && navigator.canShare({files:files}); }catch(e){}
       if(!ok){ linkFallback(list); return; }
