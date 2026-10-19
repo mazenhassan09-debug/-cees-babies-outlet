@@ -1530,8 +1530,8 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var bin=atob(m[2]), n=bin.length, u=new Uint8Array(n); for(var i=0;i<n;i++) u[i]=bin.charCodeAt(i);
     return new File([u],it.code+'.jpg',{type:m[1]});
   }
-  function line(it){ var p=Number(it.price), pr=(it.price===''||it.price==null||isNaN(p))?'':'GH₵'+p; var ag=(it.ages||[]).join(', '); return it.code+' · '+(it.name||'')+(pr?' · '+pr:'')+(ag?' · '+ag:''); }
-  function caption(list){ return '🩷💙 Cee’s Babies Outlet 💙🩷\n'+list.map(line).join('\n'); }
+  function line(it){ return it.code; }
+  function caption(list){ return list.map(line).join('\n'); }
   function linkFallback(list){
     var t=caption(list)+'\n\n'+list.map(function(it){ return '📷 '+PHOTO+it.code+'.jpg'; }).join('\n');
     var u='https://wa.me/?text='+encodeURIComponent(t);
