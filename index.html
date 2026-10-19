@@ -257,6 +257,10 @@ body.arrive #root{animation:pgin .38s ease both}
 .pgt a small{display:block;font-size:.7rem}
 .pgt a.ess{flex:1.35}
 .seg.cats button{padding:7px 11px;font-size:.84rem}
+/* sect title */
+.sect{text-align:center;margin:26px 12px 4px}
+.sect h2{font-family:var(--display);font-weight:700;font-size:1.9rem;line-height:1.15;margin:0;background:linear-gradient(90deg,#fb8cb1,#30aafe);-webkit-background-clip:text;background-clip:text;color:transparent;text-wrap:balance}
+.sect p{margin:4px 0 0;color:var(--muted);font-weight:600}
 .seg button[aria-pressed="true"][data-cat="all"]{background:var(--fg);color:#fff}
 .seg button[aria-pressed="true"][data-cat="wear"]{background:var(--pink);color:#fff}
 .seg button[aria-pressed="true"][data-cat="care"]{background:var(--blue);color:#fff}
@@ -514,6 +518,8 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         '<div class="badges"><span class="badge">' + ICON.van.replace('<svg','<svg width="18" height="18"') + ' Pickup &amp; deliveries available</span></div></div>' +
         '<img class="mascot r" src="' + B.blue + '" alt=""></section>';
 
+      var sT = isEss ? ['Baby Accessories &amp; Essentials','Little extras for every day'] : (work.shop.page==='sets' ? ['Sets','Top &amp; bottom, ready to wear'] : ['Singles','One piece at a time']);
+      h += '<div class="sect"><h2>' + sT[0] + '</h2><p>' + sT[1] + '</p></div>';
       h += '<div class="filters"><div class="frow"><div class="seg' + (isEss?' cats':'') + '" role="group" aria-label="' + (isEss?'Category':'Boys or girls') + '">' +
         (isEss ? [['all','All'],['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(g){ return '<button data-cat="' + g[0] + '" aria-pressed="' + (ui.cat===g[0]) + '">' + g[1] + '</button>'; }).join('') : [['all','All'],['boys','Boys'],['girls','Girls']].map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (ui.g===g[0]) + '">' + g[1] + '</button>'; }).join('')) + '</div>' +
         '<label class="instock"><input type="checkbox" id="instock"' + (ui.instock?' checked':'') + '> In stock only</label></div>' +
@@ -846,7 +852,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     P('In stock only','En stock uniquement','المتوفر فقط');
     P('Singles','Pièces seules','قطع منفردة'); P('Sets','Ensembles','أطقم');
     P('· one piece','· une pièce','· قطعة واحدة'); P('· top & bottom','· haut et bas','· علوي وسفلي');
-    P('Accessories & Essentials','Accessoires et essentiels','إكسسوارات ومستلزمات'); P('Wear & Style','Vêtements et style','ملابس وأناقة'); P('Feeding & Care','Repas et soins','التغذية والعناية'); P('Category','Catégorie','الفئة'); P('All Items','Tous les articles','كل المنتجات'); P('Singles, Sets or Accessories & Essentials','Pièces seules, ensembles ou accessoires et essentiels','قطع منفردة أو أطقم أو إكسسوارات ومستلزمات');
+    P('Accessories & Essentials','Accessoires et essentiels','إكسسوارات ومستلزمات'); P('Wear & Style','Vêtements et style','ملابس وأناقة'); P('Feeding & Care','Repas et soins','التغذية والعناية'); P('Category','Catégorie','الفئة'); P('Baby Accessories & Essentials','Accessoires et essentiels pour bébé','إكسسوارات ومستلزمات الأطفال'); P('Little extras for every day','De petits plus pour tous les jours','إضافات صغيرة لكل يوم'); P('Top & bottom, ready to wear','Haut et bas, prêts à porter','علوي وسفلي جاهز للارتداء'); P('One piece at a time','Une pièce à la fois','قطعة واحدة في كل مرة'); P('All Items','Tous les articles','كل المنتجات'); P('Singles, Sets or Accessories & Essentials','Pièces seules, ensembles ou accessoires et essentiels','قطع منفردة أو أطقم أو إكسسوارات ومستلزمات');
     P('All ages','Tous les âges','كل الأعمار');
     P('Out of stock','Épuisé','نفد'); P('In stock','En stock','متوفر'); P('Reserved','Réservé','محجوز'); P('New','Nouveau','جديد');
     P('Order on WhatsApp','Commander sur WhatsApp','اطلب عبر واتساب');
