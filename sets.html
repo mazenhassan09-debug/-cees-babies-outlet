@@ -1530,6 +1530,24 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var bin=atob(m[2]), n=bin.length, u=new Uint8Array(n); for(var i=0;i<n;i++) u[i]=bin.charCodeAt(i);
     return new File([u],it.code+'.jpg',{type:m[1]});
   }
+  function toLabeled(it){
+    return new Promise(function(res,rej){
+      var im=new Image();
+      im.onload=function(){
+        try{
+          var w=im.naturalWidth, h=im.naturalHeight, bar=Math.round(w*0.13);
+          var c=document.createElement('canvas'); c.width=w; c.height=h+bar;
+          var x=c.getContext('2d'); x.fillStyle='#ffffff'; x.fillRect(0,0,w,h+bar); x.drawImage(im,0,0,w,h);
+          x.fillStyle='#e0457b'; x.textAlign='center'; x.textBaseline='middle';
+          x.font='800 '+Math.round(bar*0.62)+'px Nunito, Arial, sans-serif';
+          x.fillText(String(it.code||''), w/2, h+bar/2+1);
+          c.toBlob(function(b){ if(!b){ rej(new Error('blob')); return; } res(new File([b],it.code+'.jpg',{type:'image/jpeg'})); },'image/jpeg',0.92);
+        }catch(e){ rej(e); }
+      };
+      im.onerror=function(){ rej(new Error('img')); };
+      im.src=it.img||'';
+    });
+  }
   function line(it){ return it.code; }
   function caption(list){ return list.map(line).join('\n'); }
   function linkFallback(list){
@@ -1540,10 +1558,12 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   }
   function shareCodes(codes,clearAfter){
     var list=codes.map(function(c){ return items[c]; }).filter(Boolean); if(!list.length) return;
-    var files=[]; list.forEach(function(it){ var f=toFile(it); if(f) files.push(f); });
-    var ok=false; try{ ok=files.length===list.length && navigator.share && navigator.canShare && navigator.canShare({files:files}); }catch(e){}
-    if(!ok){ linkFallback(list); return; }
-    navigator.share({files:files,text:caption(list)}).then(function(){ if(clearAfter){ sel.length=0; paint(); } }).catch(function(e){ if(e&&e.name==='AbortError') return; linkFallback(list); });
+    Promise.all(list.map(function(it){ return toLabeled(it).catch(function(){ return toFile(it); }); })).then(function(files){
+      files=files.filter(Boolean);
+      var ok=false; try{ ok=files.length===list.length && navigator.share && navigator.canShare && navigator.canShare({files:files}); }catch(e){}
+      if(!ok){ linkFallback(list); return; }
+      navigator.share({files:files}).then(function(){ if(clearAfter){ sel.length=0; paint(); } }).catch(function(e){ if(e&&e.name==='AbortError') return; linkFallback(list); });
+    });
   }
   document.addEventListener('click',function(e){
     var el=e.target.closest&&e.target.closest('.sm-tick,.sm-one,.sm-send,.sm-clear,.sm-exit'); if(!el) return;
