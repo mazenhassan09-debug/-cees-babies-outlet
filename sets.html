@@ -52,6 +52,7 @@ a{color:inherit}
 .seg button[aria-pressed="true"][data-g="boys"]{background:var(--blue);color:#fff}
 .seg button[aria-pressed="true"][data-g="girls"]{background:var(--pink);color:#fff}
 .ages{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;min-width:0;flex:1 1 300px;scrollbar-width:thin}
+.gsep{grid-column:1/-1;margin:16px 2px 4px}.gsep b{display:block;font-size:1.12rem;color:var(--pink-deep);font-weight:800;margin-bottom:6px}.gsep b small{font-weight:600;color:var(--muted,#888);font-size:.8rem}.gsep i{display:block;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--pink),var(--blue))}
 .subs{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px}.subs .chip{font-size:.9rem;padding:7px 15px}.subs .chip[aria-pressed="true"]{background:#ffe1ee;border-color:var(--pink);color:var(--pink-deep)}.subadd{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px;padding:8px;border:1.5px dashed var(--line);border-radius:14px}.subadd input,.subadd select{font:inherit;font-size:.85rem;padding:6px 9px;border:1.5px solid var(--line);border-radius:10px;min-width:0}.subadd input{flex:1 1 120px}.subadd button{font:inherit;font-weight:700;font-size:.85rem;border:0;border-radius:10px;padding:7px 12px;background:var(--pink);color:#fff;cursor:pointer}
 .chip{flex:0 0 auto;font:inherit;font-weight:700;font-size:.84rem;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--surface);color:var(--fg);cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep)}
@@ -467,7 +468,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         '<input type="text" id="n-' + it.id + '" data-i="' + i + '" data-k="name" value="' + esc(it.name) + '" placeholder="Item name" aria-label="Item name">' +
         '<div class="two"><input type="number" min="0" step="0.01" id="p-' + it.id + '" data-i="' + i + '" data-k="price" value="' + esc(it.price) + '" placeholder="Price GH₵" aria-label="Price in cedis">' +
         '<input type="text" id="s-' + it.id + '" data-i="' + i + '" data-k="sizes" value="' + esc(it.sizes) + '" placeholder="Sizes" aria-label="Sizes"></div>' +
-        (isEss ? '<select id="g-' + it.id + '" data-i="' + i + '" data-k="cat" aria-label="Category">' + [['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(c){ return '<option value="' + c[0] + '"' + (it.cat===c[0]?' selected':'') + '>' + c[1] + '</option>'; }).join('') + '</select>' + (subsOf(it.cat).length ? '<select id="sb-' + it.id + '" data-i="' + i + '" data-k="sub" aria-label="Small category"><option value="">No small category</option>' + subsOf(it.cat).map(function(sb){ return '<option value="' + esc(sb.id) + '"' + (it.sub===sb.id?' selected':'') + '>' + esc(sb.name) + '</option>'; }).join('') + '</select>' : '') : '<select id="g-' + it.id + '" data-i="' + i + '" data-k="gender" aria-label="Boys or girls">' +
+        (isEss ? '<select id="g-' + it.id + '" data-i="' + i + '" data-k="cat" aria-label="Category">' + [['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(c){ return '<option value="' + c[0] + '"' + (it.cat===c[0]?' selected':'') + '>' + c[1] + '</option>'; }).join('') + '</select>' + (subsOf(it.cat).length ? '<select id="sb-' + it.id + '" data-i="' + i + '" data-k="sub" aria-label="Small category"><option value="">No small category</option>' + subsOf(it.cat).map(function(sb){ return '<option value="' + esc(sb.id) + '"' + (it.sub===sb.id?' selected':'') + '>' + esc(sb.name) + '</option>'; }).join('') + '</select>' : '') + '<input type="text" id="gp-' + it.id + '" data-i="' + i + '" data-k="grp" value="' + esc(it.grp||'') + '" placeholder="Group name (optional)" aria-label="Group name">' : '<select id="g-' + it.id + '" data-i="' + i + '" data-k="gender" aria-label="Boys or girls">' +
           ['boys','girls','unisex'].map(function(g){ return '<option value="' + g + '"' + (it.gender===g?' selected':'') + '>' + genderLabel(g) + '</option>'; }).join('') + '</select>') +
         (isEss ? '' : '<div class="agepick" role="group" aria-label="Ages">' + AGES.map(function(a){ return '<button type="button" class="chip" data-agei="' + i + '" data-age="' + esc(a) + '" aria-pressed="' + (ages.indexOf(a)>=0) + '">' + esc(a) + '</button>'; }).join('') + '</div>') +
         '<div class="stock"><span class="field">In stock</span>' +
@@ -497,10 +498,30 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     return h + '</article>';
   }
 
-  function section(title, sub, list, showNew, emptyMsg){
+  var COLS=['pink polka','pink gingham','yellow gingham','yellow flower','blue floral','dusty pink','olive brown','light blue','light pink','sky blue','baby blue','baby pink','burgundy','mustard','lavender','strawberry','lilac','purple','mocha','peach','coral','cream','beige','white','black','brown','grey','gray','navy','blue','yellow','pink','blush','red','green','mint','sage','orange','gold','silver','tan','camel','rose','olive','lemon','maroon','teal','turquoise','khaki','nude','ivory'];
+  function grpOf(it){
+    if (it.grp && String(it.grp).trim()) return String(it.grp).trim();
+    var n = String(it.name||'').trim(), low = n.toLowerCase(), moved = true;
+    while (moved){ moved = false; for (var i=0;i<COLS.length;i++){ var c = COLS[i]; if (low.indexOf(c+' ')===0){ n = n.slice(c.length+1).trim(); low = n.toLowerCase(); moved = true; break; } } }
+    return n || String(it.name||'').trim();
+  }
+  function groupList(list, ordr){
+    var map = {}, order = [];
+    list.forEach(function(p){ var g = grpOf(p[0]); if (!map[g]){ map[g] = []; order.push(g); } map[g].push(p); });
+    if (order.length < 2) return null;
+    function minP(g){ var m = 1e12; map[g].forEach(function(p){ var v = parseFloat(p[0].price); if (!isNaN(v) && v < m) m = v; }); return m; }
+    function minC(g){ var m = 1e12; map[g].forEach(function(p){ var v = parseInt(String(p[0].code||'').replace(/\D/g,''),10); if (!isNaN(v) && v < m) m = v; }); return m; }
+    order.sort(function(a,b){ var d = minP(a)-minP(b); return d || (minC(a)-minC(b)); });
+    return order.map(function(g){ return [g, map[g].sort(ordr)]; });
+  }
+  function section(title, sub, list, showNew, emptyMsg, ordr){
     var h = '<section class="sec"><div class="sechead"><h2>' + title + '</h2><small>' + sub + '</small></div>';
     if (!list.length) h += '<div class="empty">' + emptyMsg + '</div>';
-    else h += '<div class="grid">' + list.map(function(p){ return card(p[0], p[1], showNew); }).join('') + '</div>';
+    else {
+      var gl = (isEss && ui.cat!=='all' && ui.sub && !ui.code && !ui.manage && ordr) ? groupList(list, ordr) : null;
+      if (gl) h += '<div class="grid">' + gl.map(function(g){ return '<div class="gsep"><b>' + esc(g[0]) + ' <small>· ' + g[1].length + ' item' + (g[1].length===1?'':'s') + '</small></b><i></i></div>' + g[1].map(function(p){ return card(p[0], p[1], showNew); }).join(''); }).join('') + '</div>';
+      else h += '<div class="grid">' + list.map(function(p){ return card(p[0], p[1], showNew); }).join('') + '</div>';
+    }
     return h + '</section>';
   }
 
@@ -553,8 +574,8 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       if (!work.items.length){
         h += '<section class="sec"><div class="empty"><b>New pieces coming soon</b>' + (ui.canEdit ? 'Tap “Manage shop”, then “Add photos” to put your first clothes up.' : 'Check back shortly, or message us on WhatsApp.') + '</div></section>';
       } else {
-        h += section('<span class="p">New</span> Arrivals', 'Added in the last 30 days', fresh, true, filtered ? 'No new arrivals match these filters.' : 'No new arrivals right now. Check back soon.');
-        h += section(isEss?'All Items':'All Clothes', rest.length + ' piece' + (rest.length===1?'':'s'), rest, false, filtered ? 'Nothing here matches these filters.' : 'Pieces move here 30 days after they arrive.');
+        h += section('<span class="p">New</span> Arrivals', 'Added in the last 30 days', fresh, true, filtered ? 'No new arrivals match these filters.' : 'No new arrivals right now. Check back soon.', ordr);
+        h += section(isEss?'All Items':'All Clothes', rest.length + ' piece' + (rest.length===1?'':'s'), rest, false, filtered ? 'Nothing here matches these filters.' : 'Pieces move here 30 days after they arrive.', ordr);
       }
     }
 
