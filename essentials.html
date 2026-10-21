@@ -1487,7 +1487,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     }
     document.addEventListener('click',function(e){
       var a=e.target.closest && e.target.closest('a.wa[href*="wa.me"]');
-      if(!a || busy || ui.canEdit || ui.manage) return;
+      if(!a || busy || ui.canEdit || ui.manage || a.getAttribute('data-nopic')) return;
       var href=a.getAttribute('href')||'', m=/[?&]text=([^&]*)/.exec(href); if(!m) return;
       var text; try{ text=decodeURIComponent(m[1]); }catch(x){ return; }
       var codes=[], re=/(?:^|\n)(CB\d+) \u00B7 /g, mm;
