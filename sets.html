@@ -52,6 +52,7 @@ a{color:inherit}
 .seg button[aria-pressed="true"][data-g="boys"]{background:var(--blue);color:#fff}
 .seg button[aria-pressed="true"][data-g="girls"]{background:var(--pink);color:#fff}
 .ages{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;min-width:0;flex:1 1 300px;scrollbar-width:thin}
+.subs{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px}.subs .chip{font-size:.9rem;padding:7px 15px}.subs .chip[aria-pressed="true"]{background:#ffe1ee;border-color:var(--pink);color:var(--pink-deep)}.subadd{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px;padding:8px;border:1.5px dashed var(--line);border-radius:14px}.subadd input,.subadd select{font:inherit;font-size:.85rem;padding:6px 9px;border:1.5px solid var(--line);border-radius:10px;min-width:0}.subadd input{flex:1 1 120px}.subadd button{font:inherit;font-weight:700;font-size:.85rem;border:0;border-radius:10px;padding:7px 12px;background:var(--pink);color:#fff;cursor:pointer}
 .chip{flex:0 0 auto;font:inherit;font-weight:700;font-size:.84rem;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--surface);color:var(--fg);cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep)}
 .instock{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.88rem;cursor:pointer;margin-left:auto}
@@ -393,11 +394,13 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     if (isEss && it.cat!=='wear' && it.cat!=='care'){ it.cat = 'wear'; migrated = true; }
   });
 
+  if (isEss && !work.shop.subs){ work.shop.subs = {wear:[{id:'head',name:'Head & Toes'}],care:[]}; migrated = true; }
+  function subsOf(c){ var m = (work.shop && work.shop.subs) || {}; return Array.isArray(m[c]) ? m[c] : []; }
   loadAges();
-  var ui = {g:'all', cat:'all', age:'', instock:false, code:'', manage:false, canEdit:false, dirty:migrated, saving:false, note:'', confirmDel:null, confirmUndo:null, confirmCancel:null, resFor:null, holdInfo:{}, sales:null};
-  try { var st = JSON.parse(sessionStorage.getItem('cbo-ui')||'{}'); if (st.g) ui.g = st.g; if (st.age!=null) ui.age = st.age; if (st.cat==='wear'||st.cat==='care') ui.cat = st.cat; ui.instock = !!st.instock; } catch(e){}
+  var ui = {g:'all', cat:'all', sub:'', age:'', instock:false, code:'', manage:false, canEdit:false, dirty:migrated, saving:false, note:'', confirmDel:null, confirmUndo:null, confirmCancel:null, resFor:null, holdInfo:{}, sales:null};
+  try { var st = JSON.parse(sessionStorage.getItem('cbo-ui')||'{}'); if (st.g) ui.g = st.g; if (st.age!=null) ui.age = st.age; if (st.cat==='wear'||st.cat==='care') ui.cat = st.cat; if (typeof st.sub==='string') ui.sub = st.sub; ui.instock = !!st.instock; } catch(e){}
   if (isEss){ ui.g='all'; ui.age=''; }
-  function keepUi(){ try{ sessionStorage.setItem('cbo-ui', JSON.stringify({g:ui.g, cat:ui.cat, age:ui.age, instock:ui.instock})); }catch(e){} }
+  function keepUi(){ try{ sessionStorage.setItem('cbo-ui', JSON.stringify({g:ui.g, cat:ui.cat, sub:ui.sub, age:ui.age, instock:ui.instock})); }catch(e){} }
 
   var root = document.getElementById('root');
   var fontHref = document.querySelector('link[href*="fonts.googleapis"]').href;
@@ -418,8 +421,21 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   function isNew(it){ return (NOW - (it.addedAt||0)) < NEW_DAYS*DAY; }
   function newUntil(it){ return new Date((it.addedAt||0) + NEW_DAYS*DAY).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
   function genderLabel(g){ return g==='boys'?'Boys':g==='girls'?'Girls':'Boys & Girls'; }
+  function subsHtml(){
+    if (!isEss || ui.cat==='all') return '';
+    var list = subsOf(ui.cat).filter(function(sb){ return ui.manage || work.items.some(function(x){ return x.cat===ui.cat && x.sub===sb.id; }); });
+    var h = '';
+    if (list.length){
+      h += '<div class="subs" role="group" aria-label="Small category"><button type="button" class="chip" data-sub="" aria-pressed="' + (ui.sub==='') + '">All</button>' +
+        list.map(function(sb){ return '<button type="button" class="chip" data-sub="' + esc(sb.id) + '" aria-pressed="' + (ui.sub===sb.id) + '">' + esc(sb.name) + '</button>'; }).join('') + '</div>';
+    }
+    if (ui.manage && ui.canEdit){
+      h += '<div class="subadd"><input type="text" id="newsub" maxlength="30" placeholder="New small category name" aria-label="New small category name"><button type="button" id="addsub">+ Add to ' + (ui.cat==='care'?'Feeding &amp; Care':'Wear &amp; Style') + '</button></div>';
+    }
+    return h;
+  }
   function matches(it){
-    if (isEss){ if (ui.cat!=='all' && it.cat!==ui.cat) return false; }
+    if (isEss){ if (ui.cat!=='all' && it.cat!==ui.cat) return false; if (ui.cat!=='all' && ui.sub && it.sub!==ui.sub) return false; }
     else {
     if (ui.g!=='all' && it.gender!==ui.g && it.gender!=='unisex') return false;
     if (ui.age && (it.ages||[]).indexOf(ui.age)<0) return false;
@@ -451,7 +467,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         '<input type="text" id="n-' + it.id + '" data-i="' + i + '" data-k="name" value="' + esc(it.name) + '" placeholder="Item name" aria-label="Item name">' +
         '<div class="two"><input type="number" min="0" step="0.01" id="p-' + it.id + '" data-i="' + i + '" data-k="price" value="' + esc(it.price) + '" placeholder="Price GH₵" aria-label="Price in cedis">' +
         '<input type="text" id="s-' + it.id + '" data-i="' + i + '" data-k="sizes" value="' + esc(it.sizes) + '" placeholder="Sizes" aria-label="Sizes"></div>' +
-        (isEss ? '<select id="g-' + it.id + '" data-i="' + i + '" data-k="cat" aria-label="Category">' + [['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(c){ return '<option value="' + c[0] + '"' + (it.cat===c[0]?' selected':'') + '>' + c[1] + '</option>'; }).join('') + '</select>' : '<select id="g-' + it.id + '" data-i="' + i + '" data-k="gender" aria-label="Boys or girls">' +
+        (isEss ? '<select id="g-' + it.id + '" data-i="' + i + '" data-k="cat" aria-label="Category">' + [['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(c){ return '<option value="' + c[0] + '"' + (it.cat===c[0]?' selected':'') + '>' + c[1] + '</option>'; }).join('') + '</select>' + (subsOf(it.cat).length ? '<select id="sb-' + it.id + '" data-i="' + i + '" data-k="sub" aria-label="Small category"><option value="">No small category</option>' + subsOf(it.cat).map(function(sb){ return '<option value="' + esc(sb.id) + '"' + (it.sub===sb.id?' selected':'') + '>' + esc(sb.name) + '</option>'; }).join('') + '</select>' : '') : '<select id="g-' + it.id + '" data-i="' + i + '" data-k="gender" aria-label="Boys or girls">' +
           ['boys','girls','unisex'].map(function(g){ return '<option value="' + g + '"' + (it.gender===g?' selected':'') + '>' + genderLabel(g) + '</option>'; }).join('') + '</select>') +
         (isEss ? '' : '<div class="agepick" role="group" aria-label="Ages">' + AGES.map(function(a){ return '<button type="button" class="chip" data-agei="' + i + '" data-age="' + esc(a) + '" aria-pressed="' + (ages.indexOf(a)>=0) + '">' + esc(a) + '</button>'; }).join('') + '</div>') +
         '<div class="stock"><span class="field">In stock</span>' +
@@ -523,14 +539,16 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       h += '<div class="filters"><div class="frow"><div class="seg' + (isEss?' cats':'') + '" role="group" aria-label="' + (isEss?'Category':'Boys or girls') + '">' +
         (isEss ? [['all','All'],['wear','Wear &amp; Style'],['care','Feeding &amp; Care']].map(function(g){ return '<button data-cat="' + g[0] + '" aria-pressed="' + (ui.cat===g[0]) + '">' + g[1] + '</button>'; }).join('') : [['all','All'],['boys','Boys'],['girls','Girls']].map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (ui.g===g[0]) + '">' + g[1] + '</button>'; }).join('')) + '</div>' +
         '<label class="instock"><input type="checkbox" id="instock"' + (ui.instock?' checked':'') + '> In stock only</label></div>' +
+        subsHtml() +
         pgTabsHtml() +
         (isEss?'<div class="ages" role="group" aria-label="Age" hidden style="display:none">':'<div class="ages" role="group" aria-label="Age">') + '<button class="chip" data-agef="" aria-pressed="' + (ui.age==='') + '">All ages</button>' +
         AGES.map(function(a){ return '<button class="chip" data-agef="' + esc(a) + '" aria-pressed="' + (ui.age===a) + '">' + esc(a) + '</button>'; }).join('') + '</div></div>';
 
       h += '<input type="search" id="codeq" class="codeq" placeholder="Find by item code (e.g. CB012)" value="' + esc(ui.code) + '" aria-label="Find by item code">';
       var shown = items.filter(function(p){ return matches(p[0]); });
-      var fresh = shown.filter(function(p){ return isNew(p[0]); }).sort(function(a,b){ return b[0].addedAt-a[0].addedAt; });
-      var rest = shown.filter(function(p){ return !isNew(p[0]); }).sort(function(a,b){ return b[0].addedAt-a[0].addedAt; });
+      function ordr(a,b){ if (isEss){ var pa = parseFloat(a[0].price), pb = parseFloat(b[0].price); pa = isNaN(pa) ? 1e12 : pa; pb = isNaN(pb) ? 1e12 : pb; if (pa!==pb) return pa-pb; return String(a[0].code||'').localeCompare(String(b[0].code||''),undefined,{numeric:true}); } return b[0].addedAt-a[0].addedAt; }
+      var fresh = shown.filter(function(p){ return isNew(p[0]); }).sort(ordr);
+      var rest = shown.filter(function(p){ return !isNew(p[0]); }).sort(ordr);
       var filtered = ui.g!=='all' || ui.cat!=='all' || ui.age || ui.instock || ui.code;
       if (!work.items.length){
         h += '<section class="sec"><div class="empty"><b>New pieces coming soon</b>' + (ui.canEdit ? 'Tap “Manage shop”, then “Add photos” to put your first clothes up.' : 'Check back shortly, or message us on WhatsApp.') + '</div></section>';
@@ -1252,7 +1270,9 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   root.addEventListener('click', function(e){
     var t = e.target.closest('button'); if (!t) return;
     if (t.dataset.g){ ui.g = t.dataset.g; keepUi(); render(); }
-    else if (t.dataset.cat){ ui.cat = t.dataset.cat; keepUi(); render(); }
+    else if (t.dataset.cat){ ui.cat = t.dataset.cat; ui.sub = ''; keepUi(); render(); }
+    else if (t.dataset.sub!=null){ ui.sub = t.dataset.sub; keepUi(); render(); }
+    else if (t.id==='addsub'){ var inp = document.getElementById('newsub'), nm = inp ? inp.value.trim() : ''; if (nm && ui.cat!=='all'){ var arr = subsOf(ui.cat); if (!arr.some(function(z){ return z.name.toLowerCase()===nm.toLowerCase(); })){ work.shop.subs = work.shop.subs || {wear:[],care:[]}; work.shop.subs[ui.cat] = arr.concat([{id:'s'+Date.now().toString(36), name:nm}]); changed(); } render(); } }
     else if (t.dataset.agef!=null){ ui.age = t.dataset.agef; keepUi(); render(); }
     else if (t.id==='mgr'){ ui.manage = !ui.manage; ui.confirmDel=null; try{sessionStorage.setItem('cbo-manage', ui.manage?'1':'0');}catch(x){} render(); window.scrollTo(0,0); }
     else if (t.dataset.agei!=null){
@@ -1334,7 +1354,8 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     if (t.id==='instock'){ ui.instock = t.checked; keepUi(); render(); return; }
     if (t.dataset.k==='qty'){ var it = work.items[+t.dataset.i]; it.qty = Math.max(0, parseInt(t.value,10)||0); it.available = it.qty > 0; changed(); render(); }
     if (t.dataset.k==='gender'){ work.items[+t.dataset.i].gender = t.value; changed(); render(); }
-    if (t.dataset.k==='cat'){ work.items[+t.dataset.i].cat = t.value; changed(); render(); }
+    if (t.dataset.k==='cat'){ work.items[+t.dataset.i].cat = t.value; work.items[+t.dataset.i].sub = ''; changed(); render(); }
+    if (t.dataset.k==='sub'){ work.items[+t.dataset.i].sub = t.value; changed(); render(); }
     if (t.id==='add-files' && t.files.length){ addFiles(Array.prototype.slice.call(t.files)); t.value=''; }
     if (t.id==='agelist'){
       var list = t.value.split(/[,،]/).map(function(x){ return x.trim(); }).filter(function(x,i,arr){ return x && arr.indexOf(x)===i; });
