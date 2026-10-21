@@ -1441,6 +1441,57 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   window.addEventListener('pageshow',function(){ if(thxFlagOn()) setTimeout(showThx,1800); });
   if(thxFlagOn()) setTimeout(showThx,2200);
 
+
+  /* order with pictures */
+  (function(){
+    var busy=false;
+    function canShareFiles(){
+      try{ return !!(navigator.share && navigator.canShare && navigator.canShare({files:[new File(['x'],'a.jpg',{type:'image/jpeg'})]})); }catch(e){ return false; }
+    }
+    function srcFor(c){
+      var it=itemByCode(c); if(it && it.img) return Promise.resolve(it.img);
+      return fetch(PHOTO_BASE+c+'.jpg?cors=1',{mode:'cors',cache:'reload'}).then(function(r){ if(!r.ok) throw new Error('photo'); return r.blob(); }).then(function(b){ return URL.createObjectURL(b); });
+    }
+    function labeled(c){
+      return new Promise(function(res,rej){
+        var im=new Image();
+        im.onload=function(){
+          try{
+            var w=im.naturalWidth, h=im.naturalHeight, bar=Math.round(w*0.13);
+            var cv=document.createElement('canvas'); cv.width=w; cv.height=h+bar;
+            var x=cv.getContext('2d'); x.fillStyle='#ffffff'; x.fillRect(0,0,w,h+bar); x.drawImage(im,0,0,w,h);
+            x.fillStyle='#e0457b'; x.textAlign='center'; x.textBaseline='middle';
+            x.font='800 '+Math.round(bar*0.62)+'px Nunito, Arial, sans-serif';
+            x.fillText(c,w/2,h+bar/2+1);
+            cv.toBlob(function(b){ if(!b){ rej(new Error('blob')); return; } res(new File([b],c+'.jpg',{type:'image/jpeg'})); },'image/jpeg',0.92);
+          }catch(err){ rej(err); }
+        };
+        im.onerror=function(){ rej(new Error('img')); };
+        srcFor(c).then(function(u){ im.src=u; },rej);
+      });
+    }
+    document.addEventListener('click',function(e){
+      var a=e.target.closest && e.target.closest('a.wa[href*="wa.me"]');
+      if(!a || busy || ui.canEdit || ui.manage) return;
+      var href=a.getAttribute('href')||'', m=/[?&]text=([^&]*)/.exec(href); if(!m) return;
+      var text; try{ text=decodeURIComponent(m[1]); }catch(x){ return; }
+      var codes=[], re=/Item code: \*(CB\d+)\*/g, mm;
+      while((mm=re.exec(text))){ if(codes.indexOf(mm[1])<0) codes.push(mm[1]); }
+      if(!codes.length || codes.length>30 || !canShareFiles()) return;
+      e.preventDefault(); busy=true;
+      var fall=function(){ busy=false; var w=null; try{ w=window.open(href,'_blank'); }catch(x){} if(!w) location.href=href; };
+      Promise.all(codes.map(labeled)).then(function(files){
+        var msg=text.replace(/\n?[ \t]*📷 https?:\/\/\S+/g,'');
+        var ok=false; try{ ok=navigator.canShare({files:files}); }catch(x){}
+        if(!ok){ fall(); return; }
+        navigator.share({files:files,text:msg}).then(function(){ busy=false; }).catch(function(err){
+          if(err && err.name==='AbortError'){ busy=false; return; }
+          fall();
+        });
+      }).catch(fall);
+    },true);
+  })();
+
   /* ---- loading screen (walking feet) + smooth Singles/Sets switch ---- */
   var fromTab=false;
   var navDir='f';
