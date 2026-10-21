@@ -1553,6 +1553,17 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         }catch(err){ rej(err); }
       });
     }
+    var pcache={}, wq=Promise.resolve(), wt=null;
+    function getF(c){
+      if(pcache[c]) return pcache[c];
+      var p=labeled(c); pcache[c]=p; p.catch(function(){ if(pcache[c]===p) delete pcache[c]; }); return p;
+    }
+    function warm(){
+      try{ (favs||[]).forEach(function(c){ if(pcache[c]) return; wq=wq.then(function(){ return getF(c).catch(function(){}); }); }); }catch(e){}
+    }
+    function warmSoon(ms){ clearTimeout(wt); wt=setTimeout(warm,ms||1800); }
+    document.addEventListener('click',function(){ warmSoon(1800); },true);
+    setTimeout(warm,3500);
     document.addEventListener('click',function(e){
       var a=e.target.closest && e.target.closest('a.wa[href*="wa.me"]');
       if(!a || busy || ui.canEdit || ui.manage || a.getAttribute('data-nopic')) return;
@@ -1563,7 +1574,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       if(!codes.length || codes.length>30 || !canShareFiles()) return;
       e.preventDefault(); busy=true;
       var fall=function(){ busy=false; var go=function(){ var w=null; try{ w=window.open(href,'_blank'); }catch(x){} if(!w) location.href=href; }; try{ if(navigator.share){ navigator.share({text:text}).catch(function(er){ if(!(er&&er.name==='AbortError')) go(); }); return; } }catch(x){} go(); };
-      Promise.all(codes.map(labeled)).then(function(files){
+      Promise.all(codes.map(getF)).then(function(files){
         var msg=text.replace(/\n?[ \t]*📷 https?:\/\/\S+/g,'');
         return Promise.all([summaryFile(msg,1080)]).then(function(r){ files.push(r[0]); return files; });
       }).then(function(files){
