@@ -1010,7 +1010,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   })();
 
   /* ---- favorites (hearts), shared between the Singles and Sets pages ---- */
-  var FKEY='cbo-favs', IKEY='cbo-favinfo', FMAX=12, favs=[], finfo={};
+  var FKEY='cbo-favs', IKEY='cbo-favinfo', FMAX=9, favs=[], finfo={};
   try{ favs = JSON.parse(localStorage.getItem(FKEY)||'[]'); if(!Array.isArray(favs)) favs=[]; }catch(e){ favs=[]; }
   try{ finfo = JSON.parse(localStorage.getItem(IKEY)||'{}'); if(!finfo||typeof finfo!=='object') finfo={}; }catch(e){ finfo={}; }
   function saveFavs(){ try{ localStorage.setItem(FKEY, JSON.stringify(favs)); localStorage.setItem(IKEY, JSON.stringify(finfo)); }catch(e){} syncFavImgs(); }
@@ -1564,6 +1564,22 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     function warmSoon(ms){ clearTimeout(wt); wt=setTimeout(warm,ms||1800); }
     document.addEventListener('click',function(){ warmSoon(1800); },true);
     setTimeout(warm,3500);
+    function nextPart(chunks,i,onDone){
+      try{
+        var old=document.getElementById('ord2'); if(old) old.remove();
+        var st=document.getElementById('ord2-css');
+        if(!st){ st=document.createElement('style'); st.id='ord2-css'; st.textContent='#ord2{position:fixed;left:0;right:0;bottom:0;top:0;z-index:100000;display:flex;justify-content:center;padding:12px;background:rgba(40,20,40,.35);align-items:flex-end}#ord2 .bx{background:#fff;border-radius:22px;padding:18px 18px 16px;width:100%;max-width:420px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25);font-family:inherit}#ord2 h3{margin:0 0 6px;font-size:1.1rem;color:#d34a80}#ord2 p{margin:0 0 14px;font-size:.95rem;color:#444}#ord2 button.go{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:14px;padding:13px;background:#25d366;color:#fff;font:inherit;font-weight:800;font-size:1rem;cursor:pointer}'; document.head.appendChild(st); }
+        var d=document.createElement('div'); d.id='ord2';
+        d.innerHTML='<div class="bx" role="dialog" aria-modal="true"><h3>✅ Part '+i+' of '+chunks.length+' sent!</h3><p>Tap below to send the rest of your pictures and your order total.</p><button type="button" class="go">Send part '+(i+1)+' of '+chunks.length+'</button></div>';
+        d.querySelector('button').addEventListener('click',function(){
+          var files=chunks[i];
+          navigator.share({files:files}).then(function(){
+            d.remove(); if(i+1<chunks.length) nextPart(chunks,i+1,onDone); else onDone();
+          }).catch(function(er){ if(er&&er.name==='AbortError') return; d.remove(); onDone(); });
+        });
+        document.body.appendChild(d);
+      }catch(x){ onDone(); }
+    }
     document.addEventListener('click',function(e){
       var a=e.target.closest && e.target.closest('a.wa[href*="wa.me"]');
       if(!a || busy || ui.canEdit || ui.manage || a.getAttribute('data-nopic')) return;
@@ -1578,9 +1594,13 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         var msg=text.replace(/\n?[ \t]*📷 https?:\/\/\S+/g,'');
         return Promise.all([summaryFile(msg,1080)]).then(function(r){ files.push(r[0]); return files; });
       }).then(function(files){
-        var ok=false; try{ ok=navigator.canShare({files:files}); }catch(x){}
+        var T=files.length, k=Math.ceil(T/10), sz=Math.ceil(T/k), chunks=[];
+        for(var q=0;q<T;q+=sz) chunks.push(files.slice(q,q+sz));
+        var ok=false; try{ ok=chunks.every(function(c){ return navigator.canShare({files:c}); }); }catch(x){}
         if(!ok){ fall(); return; }
-        navigator.share({files:files}).then(function(){ busy=false; }).catch(function(err){
+        navigator.share({files:chunks[0]}).then(function(){
+          if(chunks.length>1) nextPart(chunks,1,function(){ busy=false; }); else busy=false;
+        }).catch(function(err){
           if(err && err.name==='AbortError'){ busy=false; return; }
           fall();
         });
