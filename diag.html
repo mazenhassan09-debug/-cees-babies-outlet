@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Picture test</title>
+<style>body{font:16px/1.4 system-ui,Arial,sans-serif;margin:0;padding:14px;background:#fff7fb;color:#222}h1{font-size:20px;margin:0 0 8px}.r{padding:10px 12px;border-radius:12px;margin:8px 0;background:#fff;border:2px solid #ddd;word-break:break-word}.ok{border-color:#3bb36b}.no{border-color:#e0457b}b{display:block}img{width:70px;height:auto;vertical-align:middle;margin-left:8px;border-radius:8px}</style></head><body>
+<h1>Picture test</h1><div id="o"></div>
+<script>
+var B='https://luminous-moxie-eed1fb.netlify.app/', o=document.getElementById('o');
+function row(t,ok,extra){ var d=document.createElement('div'); d.className='r '+(ok?'ok':'no'); d.innerHTML='<b>'+(ok?'PASS':'FAIL')+' - '+t+'</b>'+(extra||''); o.appendChild(d); return d; }
+var info=document.createElement('div'); info.className='r'; info.textContent='Page: '+location.href+' | online: '+navigator.onLine; o.appendChild(info);
+document.addEventListener('securitypolicyviolation',function(e){ row('Blocked by page security rule',false,'blocked: '+e.blockedURI+'<br>rule: '+e.violatedDirective); });
+function imgTest(label,url,attrs){
+  var im=new Image(); if(attrs&&attrs.cors) im.crossOrigin='anonymous'; if(attrs&&attrs.nr) im.referrerPolicy='no-referrer';
+  im.onload=function(){ var d=row(label,im.naturalWidth>0,'size '+im.naturalWidth+'x'+im.naturalHeight); d.appendChild(im); };
+  im.onerror=function(){ row(label,false,'could not load: '+url); };
+  im.src=url;
+}
+imgTest('1. Normal picture CB405',B+'photos/CB405.jpg?t='+Date.now());
+imgTest('2. Picture CB404',B+'photos/CB404.jpg?t='+Date.now());
+imgTest('3. Old picture CB002',B+'photos/CB002.jpg?t='+Date.now());
+imgTest('4. Without sending page address',B+'photos/CB405.jpg?t='+Date.now()+'a',{nr:1});
+imgTest('5. Root copy CB405',B+'CB405.jpg?t='+Date.now());
+imgTest('6. With CORS',B+'photos/CB405.jpg?t='+Date.now()+'b',{cors:1});
+fetch(B+'photos/CB405.jpg?cors=1&t='+Date.now(),{mode:'cors',cache:'reload'}).then(function(r){ row('7. Download test',r.ok,'status '+r.status+' | type '+r.headers.get('content-type')); }).catch(function(e){ row('7. Download test',false,String(e)); });
+</script></body></html>
