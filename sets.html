@@ -1807,5 +1807,32 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   var mo=new MutationObserver(function(){ mo.disconnect(); decorate(); mo.observe(root,{childList:true,subtree:true}); });
   decorate(); mo.observe(root,{childList:true,subtree:true});
 })();
+
+/* update banner */
+(function(){
+  try{ if(/[?&](share|manage)(=|&|$)/.test(location.search)) return; if(sessionStorage.getItem('cbo-share')==='1'||sessionStorage.getItem('cbo-manage')==='1') return; }catch(e){}
+  if(!window.fetch||!/^https?:/.test(location.protocol)) return;
+  var base=null, shown=false;
+  function sig(r){ return (r.headers.get('etag')||'')+'|'+(r.headers.get('last-modified')||'')+'|'+(r.headers.get('content-length')||''); }
+  function check(){
+    if(shown) return;
+    fetch(location.pathname,{method:'HEAD',cache:'no-store'}).then(function(r){
+      if(!r.ok) return; var g=sig(r); if(g==='||') return;
+      if(base===null){ base=g; return; }
+      if(g!==base) show();
+    }).catch(function(){});
+  }
+  function show(){
+    if(shown) return; shown=true;
+    var d=document.createElement('div'); d.id='cbo-upd'; d.setAttribute('role','status');
+    d.style.cssText='position:fixed;left:12px;right:12px;bottom:18px;z-index:99990;max-width:460px;margin:0 auto;background:#fff;border:2px solid #f3b6cd;border-radius:18px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);font:700 15px Nunito,Arial,sans-serif;color:#333;display:flex;align-items:center;gap:12px';
+    d.innerHTML='<span style="font-size:22px">✨</span><span style="flex:1">New items are ready<br><small style="font-weight:600;color:#777">Tap to see the latest</small></span><button type="button" style="border:0;border-radius:12px;padding:10px 16px;background:linear-gradient(90deg,#ec5b92,#3b9cf5);color:#fff;font:800 15px Nunito,Arial,sans-serif;cursor:pointer">Refresh</button>';
+    d.querySelector('button').addEventListener('click',function(){ location.reload(); });
+    document.body.appendChild(d);
+  }
+  setTimeout(check,4000);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
+  setInterval(function(){ if(!document.hidden) check(); },300000);
+})();
 </script>
 </body></html>
