@@ -1678,7 +1678,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       c.classList.toggle('sm-on',is); if(t){ t.classList.toggle('on',is); t.textContent=is?'✓':''; t.setAttribute('aria-pressed',is); }
     }
     bar.hidden=!sel.length; document.body.classList.toggle('sm-has',sel.length>0);
-    bar.querySelector('b').textContent='Send '+sel.length+' picture'+(sel.length===1?'':'s');
+    bar.querySelector('b').textContent=queue?('Send next '+Math.min(CH,queue.rest.length)+' (part '+queue.part+' of '+queue.parts+')'):('Send '+sel.length+' picture'+(sel.length===1?'':'s')+(sel.length>CH?' · '+Math.ceil(sel.length/CH)+' parts':''));
   }
   function decorate(){
     var cards=root.querySelectorAll('.card');
@@ -1735,24 +1735,30 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     if(navigator.share){ navigator.share({text:t}).catch(function(e){ if(e&&e.name==='AbortError') return; go(); }); return; }
     go();
   }
-  function shareCodes(codes,clearAfter){
-    var list=codes.map(function(c){ return items[c]||{code:c}; }); if(!list.length) return;
+  var CH=9, queue=null;
+  function shareCodes(codes,clearAfter,part,parts){
+    var chunk=codes.slice(0,CH), rest=codes.slice(CH);
+    part=part||1; parts=parts||Math.ceil(codes.length/CH);
+    var list=chunk.map(function(c){ return items[c]||{code:c}; }); if(!list.length) return;
     Promise.all(list.map(function(it){ return toLabeled(it).catch(function(e){ lastErr=(e&&e.message)||'error'; return toFile(it); }); })).then(function(files){
       files=files.filter(Boolean);
       var ok=false; try{ ok=files.length===list.length && navigator.share && navigator.canShare && navigator.canShare({files:files}); }catch(e){}
       if(!ok){ linkFallback(list); return; }
-      navigator.share({files:files}).then(function(){ if(clearAfter){ sel.length=0; unstashAll(); paint(); } }).catch(function(e){ if(e&&e.name==='AbortError') return; linkFallback(list); });
+      navigator.share({files:files}).then(function(){
+        if(rest.length){ queue={rest:rest,clear:clearAfter,part:part+1,parts:parts}; paint(); toast('Part '+part+' of '+parts+' sent. Tap “Send next” for the rest.'); }
+        else { queue=null; if(clearAfter){ sel.length=0; unstashAll(); } paint(); }
+      }).catch(function(e){ if(e&&e.name==='AbortError') return; linkFallback(list); });
     });
   }
   document.addEventListener('click',function(e){
     var el=e.target.closest&&e.target.closest('.sm-tick,.sm-one,.sm-send,.sm-clear,.sm-exit'); if(!el) return;
     e.preventDefault(); e.stopPropagation();
     if(el.classList.contains('sm-exit')){ try{ sessionStorage.removeItem('cbo-share'); sessionStorage.removeItem('cbo-sel'); }catch(x){} unstashAll(); location.href=location.pathname; return; }
-    if(el.classList.contains('sm-clear')){ sel.length=0; unstashAll(); paint(); return; }
-    if(el.classList.contains('sm-send')){ shareCodes(sel.slice(),true); return; }
+    if(el.classList.contains('sm-clear')){ queue=null; sel.length=0; unstashAll(); paint(); return; }
+    if(el.classList.contains('sm-send')){ if(queue){ shareCodes(queue.rest.slice(),queue.clear,queue.part,queue.parts); } else shareCodes(sel.slice(),true); return; }
     var card=el.closest('.card'), code=card&&card.getAttribute('data-smcode'); if(!code) return;
     if(el.classList.contains('sm-one')){ shareCodes([code],false); return; }
-    var i=sel.indexOf(code);
+    queue=null; var i=sel.indexOf(code);
     if(i>=0){ sel.splice(i,1); unstashOne(code); } else { if(sel.length>=MAX){ toast('You can pick up to '+MAX+' at a time.'); return; } sel.push(code); stashOne(code); }
     paint();
   },true);
