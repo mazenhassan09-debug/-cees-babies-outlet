@@ -1879,4 +1879,75 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   upd();
 })();
 </script>
+<script id="cbo-mascot">
+(function(){
+  if(document.getElementById('cbo-mh'))return;
+  try{ if(/[?&]share(=|&|$)/.test(location.search)||sessionStorage.getItem('cbo-share')==='1')return; }catch(e){}
+  var B={},C={};
+  try{ B=JSON.parse(document.getElementById('brand').textContent)||{}; }catch(e){}
+  try{ C=JSON.parse(document.getElementById('catalog').textContent)||{}; }catch(e){}
+  if(!B.pink||!B.blue)return;
+  var d=String((C.shop&&C.shop.whatsapp)||'0556967767').replace(/\D/g,''); if(d.length===10&&d.charAt(0)==='0')d='233'+d.slice(1);
+  var wa='https://wa.me/'+d+'?text='+encodeURIComponent("Hello Cee's Babies Outlet 💗 I need help choosing something.");
+  var st=document.createElement('style'); st.id='cbo-mascot-css';
+  st.textContent=
+  '@media (prefers-reduced-motion:no-preference){'+
+  '.hero .mascot{animation:cbomb 5s ease-in-out infinite;transform-origin:50% 100%;cursor:pointer;-webkit-tap-highlight-color:transparent}'+
+  '.hero .mascot.r{animation-delay:-2.5s}'+
+  '@keyframes cbomb{0%,100%{transform:translateY(0) rotate(0)}20%{transform:translateY(-6px) rotate(-2deg)}40%{transform:translateY(0) rotate(0)}55%{transform:translateY(-3px) rotate(3deg)}70%{transform:translateY(0) rotate(-2deg)}85%{transform:translateY(-5px) rotate(0)}}'+
+  '.hero .mascot.cbo-twirl{animation:cbotw .9s ease-in-out 1}'+
+  '@keyframes cbotw{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.12) translateY(-14px)}100%{transform:rotate(360deg) scale(1)}}'+
+  '.hero .mascot.cbo-tip{animation:cbotp 1s ease-in-out 1}'+
+  '@keyframes cbotp{0%{transform:rotate(0)}25%{transform:rotate(-12deg) translateY(-8px)}45%{transform:rotate(9deg) translateY(2px)}65%{transform:rotate(-7deg) translateY(-4px)}100%{transform:rotate(0)}}'+
+  '#cbo-mh .m{animation:cbomh 2.8s ease-in-out infinite}'+
+  '@keyframes cbomh{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(-4deg) translateY(-7px)}}}'+
+  '#cbo-mh{position:fixed;right:0;bottom:150px;z-index:9985;display:none;align-items:flex-end;pointer-events:none;font-family:inherit}'+
+  '#cbo-mh.on{display:flex}'+
+  '#cbo-mh .m{pointer-events:auto;width:70px;height:94px;margin-right:-24px;border:0;padding:0;cursor:pointer;background:center bottom/contain no-repeat;transform:rotate(-8deg);filter:drop-shadow(0 3px 5px rgba(0,0,0,.25));transition:opacity .4s,margin .25s;-webkit-tap-highlight-color:transparent}'+
+  '#cbo-mh.sw .m{opacity:0}'+
+  '#cbo-mh.open .m{margin-right:0}'+
+  '#cbo-mh .b{pointer-events:auto;display:none;position:relative;max-width:178px;margin:0 6px 40px 0;padding:11px 12px 10px;background:#fff;border:2px solid #f3b6cd;border-radius:18px 18px 4px 18px;box-shadow:0 6px 18px rgba(0,0,0,.18);font-size:.86rem;line-height:1.3;font-weight:800;color:#3a2a35}'+
+  '#cbo-mh.open .b{display:block}'+
+  '#cbo-mh .b a{display:block;margin-top:8px;background:#25b866;color:#fff;text-decoration:none;text-align:center;padding:9px 10px;border-radius:999px;font-weight:800;font-size:.86rem}'+
+  '#cbo-mh .x{position:absolute;top:-10px;left:-10px;width:24px;height:24px;border-radius:50%;border:0;background:#3a2a35;color:#fff;font-size:15px;line-height:24px;padding:0;cursor:pointer}';
+  document.head.appendChild(st);
+
+  /* hero mascots: tap tricks */
+  document.addEventListener('click',function(e){
+    var m=e.target&&e.target.closest&&e.target.closest('.hero .mascot'); if(!m)return;
+    var c=m.classList.contains('r')?'cbo-tip':'cbo-twirl';
+    m.classList.remove('cbo-twirl','cbo-tip'); void m.offsetWidth; m.classList.add(c);
+    setTimeout(function(){ m.classList.remove(c); },1100);
+  });
+
+  /* floating helper */
+  var mh=document.createElement('div'); mh.id='cbo-mh';
+  mh.innerHTML='<div class="b" role="dialog" aria-label="Help"><button class="x" type="button" aria-label="Close">×</button>Need help choosing? 💗<br>Chat with us!<a target="_blank" rel="noopener">💬 WhatsApp</a></div><button class="m" type="button" aria-label="Need help choosing? Chat with us"></button>';
+  document.body.appendChild(mh);
+  var m=mh.querySelector('.m'), a=mh.querySelector('a'); a.href=wa;
+  var cur='pink', closed=false, turn=0;
+  try{ closed=sessionStorage.getItem('cbo-mh-x')==='1'; }catch(e){}
+  function paint(w){ cur=w; m.style.backgroundImage='url("'+B[w]+'")'; }
+  function gender(){ var p=document.querySelector('button[data-g][aria-pressed="true"]'); var g=p&&p.getAttribute('data-g'); return g==='girls'?'pink':g==='boys'?'blue':''; }
+  function sync(){
+    var g=gender(), want=g||cur;
+    if(g&&g!==cur){ swap(g); }
+  }
+  function swap(w){ mh.classList.add('sw'); setTimeout(function(){ paint(w); mh.classList.remove('sw'); },350); cur=w; }
+  paint('pink');
+  setInterval(function(){
+    if(mh.classList.contains('open'))return;
+    var g=gender();
+    if(g){ if(g!==cur)swap(g); }
+    else { turn++; if(turn%4===0)swap(cur==='pink'?'blue':'pink'); }
+  },2000);
+  document.addEventListener('click',function(){ setTimeout(sync,60); });
+  m.addEventListener('click',function(){ mh.classList.toggle('open'); });
+  mh.querySelector('.x').addEventListener('click',function(e){ e.stopPropagation(); mh.classList.remove('open'); closed=true; mh.classList.remove('on'); try{sessionStorage.setItem('cbo-mh-x','1');}catch(x){} });
+  var tick=false;
+  function upd(){ tick=false; var y=window.pageYOffset||document.documentElement.scrollTop||0; mh.classList.toggle('on',!closed&&y>600); }
+  window.addEventListener('scroll',function(){ if(!tick){ tick=true; requestAnimationFrame(upd); } },{passive:true});
+  upd();
+})();
+</script>
 </body></html>
