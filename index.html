@@ -1847,6 +1847,27 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   if(!B.pink||!B.blue)return;
   var d=String((C.shop&&C.shop.whatsapp)||'0556967767').replace(/\D/g,''); if(d.length===10&&d.charAt(0)==='0')d='233'+d.slice(1);
   var wa='https://wa.me/'+d+'?text='+encodeURIComponent("Hello Cee's Babies Outlet 💗 I need help choosing something.");
+  /* event mascots: /mascots/<event>-pink|blue.webp (or .png) replace the normal mascots on event dates (May = lupus) */
+  var EV={};
+  function probe(u,cb){ var i=new Image(); i.onload=function(){ cb(u); }; i.onerror=function(){ cb(null); }; i.src=u; }
+  function findImg(k,col,cb){ probe('/mascots/'+k+'-'+col+'.webp',function(u){ if(u)return cb(u); probe('/mascots/'+k+'-'+col+'.png',cb); }); }
+  function applyEv(){
+    var ms=document.querySelectorAll('.hero img.mascot');
+    for(var i=0;i<ms.length;i++){ var u=ms[i].classList.contains('r')?EV.blue:EV.pink; if(u&&ms[i].getAttribute('src')!==u)ms[i].setAttribute('src',u); }
+  }
+  (function(){
+    var keys=[], q=/[?&]theme=([a-z]+)/.exec(location.search||'');
+    if(q){ if(q[1]!=='off')keys.push(q[1]); }
+    else { if(window.cbKey)keys.push(window.cbKey); if(new Date().getMonth()===4)keys.push('lupus'); }
+    (function next(){
+      var k=keys.shift(); if(!k)return;
+      findImg(k,'pink',function(p){ findImg(k,'blue',function(b){
+        if(!p&&!b)return next();
+        EV.pink=p; EV.blue=b; applyEv(); if(window.__cboMhRepaint)window.__cboMhRepaint();
+        try{ new MutationObserver(applyEv).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+      }); });
+    })();
+  })();
   var st=document.createElement('style'); st.id='cbo-mascot-css';
   st.textContent=
   '@media (prefers-reduced-motion:no-preference){'+
@@ -1886,14 +1907,14 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   var m=mh.querySelector('.m'), a=mh.querySelector('a'); a.href=wa;
   var cur='pink', closed=false, turn=0;
   try{ closed=sessionStorage.getItem('cbo-mh-x')==='1'; }catch(e){}
-  function paint(w){ cur=w; m.style.backgroundImage='url("'+B[w]+'")'; mh.classList.toggle('bl',w==='blue'); var h=mh.querySelector('.hh'); if(h)h.textContent=(w==='blue'?'💙':'💗'); }
+  function paint(w){ cur=w; m.style.backgroundImage='url("'+(EV[w]||B[w])+'")'; mh.classList.toggle('bl',w==='blue'); var h=mh.querySelector('.hh'); if(h)h.textContent=(w==='blue'?'💙':'💗'); }
   function gender(){ var p=document.querySelector('button[data-g][aria-pressed="true"]'); var g=p&&p.getAttribute('data-g'); return g==='girls'?'pink':g==='boys'?'blue':''; }
   function sync(){
     var g=gender(), want=g||cur;
     if(g&&g!==cur){ swap(g); }
   }
   function swap(w){ mh.classList.add('sw'); setTimeout(function(){ paint(w); mh.classList.remove('sw'); },350); cur=w; }
-  paint('pink');
+  paint('pink'); window.__cboMhRepaint=function(){ paint(cur); };
   setInterval(function(){
     if(mh.classList.contains('open'))return;
     var g=gender();
