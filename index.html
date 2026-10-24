@@ -2063,7 +2063,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   '#cbo-sp{position:fixed;inset:0;z-index:99990;display:none;align-items:center;justify-content:center;background:rgba(40,20,40,.55);font-family:inherit}'+
   '#cbo-sp.on{display:flex}'+
   '#cbo-sp .bx{position:relative;width:min(92vw,390px);max-height:94vh;overflow:auto;background:linear-gradient(180deg,#ffe3ee,#fff 42%,#dcecff);border-radius:26px;padding:22px 18px 150px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);color:#3a2a35}'+
-  '#cbo-sp .x{position:absolute;top:10px;right:12px;width:32px;height:32px;border-radius:50%;border:0;background:#3a2a35;color:#fff;font-size:20px;line-height:32px;padding:0;cursor:pointer}'+
+  '#cbo-sp .sn{position:absolute;top:10px;left:12px;width:32px;height:32px;border-radius:50%;border:0;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);font-size:16px;line-height:32px;padding:0;cursor:pointer}'+   '#cbo-sp .x{position:absolute;top:10px;right:12px;width:32px;height:32px;border-radius:50%;border:0;background:#3a2a35;color:#fff;font-size:20px;line-height:32px;padding:0;cursor:pointer}'+
   '#cbo-sp h2{margin:6px 0 2px;font-size:1.7rem;background:linear-gradient(90deg,#fb8cb1,#30aafe);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}'+
   '#cbo-sp p{margin:4px 10px;font-size:.88rem;color:#6b5a66}'+
   '#cbo-sp .wh{position:relative;width:min(74vw,290px);aspect-ratio:1;margin:12px auto 0}'+
@@ -2101,7 +2101,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
 
   var btn=document.createElement('button'); btn.id='cbo-sp-btn'; btn.type='button'; document.body.appendChild(btn);
   var md=document.createElement('div'); md.id='cbo-sp'; md.setAttribute('role','dialog'); md.setAttribute('aria-modal','true'); md.setAttribute('aria-label','Spin and win');
-  md.innerHTML='<div class="bx"><button class="x" type="button" aria-label="Close">×</button><div class="in"></div>'+(B.pink?'<img class="ms" style="left:-6px" alt="" src="'+B.pink+'">':'')+(B.blue?'<img class="ms" style="right:-6px" alt="" src="'+B.blue+'">':'')+'</div>';
+  md.innerHTML='<div class="bx"><button class="sn" type="button"></button><button class="x" type="button" aria-label="Close">×</button><div class="in"></div>'+(B.pink?'<img class="ms" style="left:-6px" alt="" src="'+B.pink+'">':'')+(B.blue?'<img class="ms" style="right:-6px" alt="" src="'+B.blue+'">':'')+'</div>';
   document.body.appendChild(md);
   var inn=md.querySelector('.in'), xb=md.querySelector('.x'), spinning=false, rot=0;
 
@@ -2153,6 +2153,14 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     });
   }
   function pick(){ var r=rand()*100, a=0; for(var i=0;i<W.length;i++){ a+=W[i]; if(r<a)return i; } return 4; }
+  /* wheel sounds: ticks while spinning + win/lose tune; mute button remembers choice */
+  var sndOn=load('cbo-spin-snd')!==0, ac=null;
+  function actx(){ try{ var AC=window.AudioContext||window.webkitAudioContext; if(!AC)return null; if(!ac)ac=new AC(); if(ac.state==='suspended')ac.resume(); return ac; }catch(e){ return null; } }
+  function tone(f,t0,d,v,type){ var c=ac; if(!c)return; var o=c.createOscillator(), g=c.createGain(); o.type=type||'sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(v,t0+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t0+d); o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+d+0.03); }
+  function tick(){ if(!sndOn||!ac)return; var n=ac.currentTime; tone(1500,n,0.05,0.16,'triangle'); tone(900,n,0.04,0.08,'sine'); }
+  function endTune(win){ if(!sndOn||!ac)return; var n=ac.currentTime; if(win){ [523.25,659.25,783.99,1046.5,1318.5].forEach(function(f,i){ tone(f,n+i*0.11,0.55,0.2,'sine'); tone(f*2,n+i*0.11,0.3,0.04,'sine'); }); } else { tone(392,n,0.4,0.16,'sine'); tone(329.63,n+0.22,0.55,0.16,'sine'); } }
+  function tickLoop(el,ms){ var last=null,t0=Date.now(); (function f(){ if(!spinning||Date.now()-t0>ms+300)return; try{ var m=getComputedStyle(el).transform; if(m&&m!=='none'){ var v=m.match(/matrix\(([^)]+)\)/)[1].split(','); var a=Math.atan2(parseFloat(v[1]),parseFloat(v[0]))*180/Math.PI; if(a<0)a+=360; if(last!==null){ var d=a-last; if(d<-180)d+=360; if(d>0&&Math.floor((last+d)/36)!==Math.floor(last/36)&&((Math.floor((last+d)/36)%10)!==(Math.floor(last/36)%10)||true))tick(); last=a; } else last=a; } }catch(e){} requestAnimationFrame(f); })(); }
+  function setSndBtn(){ var b=md.querySelector('.sn'); if(b){ b.textContent=sndOn?'\ud83d\udd0a':'\ud83d\udd07'; b.setAttribute('aria-label',sndOn?'Sound on':'Sound off'); } }
   function spin(){
     if(spinning)return; spinning=true; var go=inn.querySelector('.go'); go.disabled=true;
     var pi=pick(), cand=[]; for(var i=0;i<SL.length;i++) if(SL[i]===pi) cand.push(i);
@@ -2161,11 +2169,13 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion:reduce)').matches; }catch(e){}
     var turns=reduce?1:5+Math.floor(rand()*2), dur=reduce?700:5200;
     rot=base+360*turns+F; if(rot<=cur)rot+=360;
-    var el=inn.querySelector('.rot'); el.style.transition='transform '+dur+'ms cubic-bezier(.12,.6,.1,1)'; el.style.transform='rotate('+rot+'deg)';
+    actx(); var el=inn.querySelector('.rot'); el.style.transition='transform '+dur+'ms cubic-bezier(.12,.6,.1,1)'; el.style.transform='rotate('+rot+'deg)'; if(!reduce)tickLoop(el,dur);
     var res=null; if(pi<4){ var e=dayNum(new Date())+VALID; res={p:pi,e:e,code:enc(pi,e)}; }
     save('cbo-spin',{d:today(),r:res||{}}); label();
-    setTimeout(function(){ spinning=false; inn.innerHTML=resultHtml(res,false); bind(res); },dur+250);
+    setTimeout(function(){ spinning=false; endTune(!!res); inn.innerHTML=resultHtml(res,false); bind(res); },dur+250);
   }
+  md.querySelector('.sn').addEventListener('click',function(){ sndOn=!sndOn; save('cbo-spin-snd',sndOn?1:0); setSndBtn(); if(sndOn){ actx(); tick(); } });
+  setSndBtn();
   function open(){ md.classList.add('on'); view(); try{ xb.focus(); }catch(e){} }
   function close(){ if(spinning)return; md.classList.remove('on'); }
   btn.addEventListener('click',open); xb.addEventListener('click',close);
