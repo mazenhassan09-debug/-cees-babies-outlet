@@ -344,6 +344,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
 
 /* share mode */
 .sharemode .a2hs,.sharemode .favbar,.sharemode .musicbtn{display:none!important}
+.gmb{display:inline-flex;align-items:center;gap:6px;margin-top:6px;background:#30aafe;color:#fff!important;font-weight:800;font-size:.82rem;border-radius:999px;padding:7px 14px;text-decoration:none!important;box-shadow:0 2px 6px rgba(48,170,254,.4)}.gmb i{font-style:normal}
 .sm-banner{position:sticky;top:0;z-index:70;background:linear-gradient(90deg,#fb8cb1,#30aafe);color:#fff;font-family:var(--display,inherit);font-weight:800;font-size:.95rem;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sm-banner small{font-weight:600;opacity:.95;font-size:.78rem;margin-left:4px}
 .sm-exit{border:0;border-radius:999px;background:rgba(255,255,255,.28);color:#fff;font-weight:800;padding:6px 14px;font-size:.85rem;cursor:pointer}
@@ -555,7 +556,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       (wa ? '<li><span class="ic">' + ICON.wa + '</span><div><small>Call / WhatsApp</small><b>' + esc(phoneShow(wa)) + '</b></div></li>' : '') +
       '<li><span class="ic b">' + ICON.ig + '</span><div><small>Instagram</small><a href="https://www.instagram.com/ceesbabiesoutlet_/" target="_blank" rel="noopener"><b>ceesbabiesoutlet_</b></a></div></li>' +
       '<li><span class="ic">' + ICON.fb + '</span><div><small>Facebook</small><a href="https://www.facebook.com/share/19goyPuruz/" target="_blank" rel="noopener"><b>Cees Babies Outlet</b></a></div></li>' +
-      '<li><span class="ic b">' + ICON.pin + '</span><div><small>Location</small><a href="https://www.google.com/maps/search/?api=1&query=Manet+Ville+Estate+Spintex+Accra" target="_blank" rel="noopener"><b>Manet Ville Estate, Spintex</b></a></div></li>' +
+      '<li><span class="ic b">' + ICON.pin + '</span><div><small>Location</small><a href="https://maps.app.goo.gl/Vvu7bmwAwcGtAgMn8" target="_blank" rel="noopener"><b>Manet Ville Estate, Spintex</b></a><a class="gmb" href="https://maps.app.goo.gl/Vvu7bmwAwcGtAgMn8" target="_blank" rel="noopener"><i>📍</i><span>Open in Google Maps</span></a></div></li>' +
       '<li><span class="ic">' + ICON.van + '</span><div><small>Delivery</small><b>Pickup &amp; deliveries available</b></div></li></ul>' +
       '<div class="parents"><img src="' + B.mom + '" alt=""><img src="' + B.dad + '" alt=""></div></div></section>' +
       '<footer class="foot">© 2026 Cee’s Babies Outlet · Premium Kids’ Clothing</footer></div>';
@@ -881,6 +882,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     P('Pieces move here 30 days after they arrive.','Les pièces passent ici 30 jours après leur arrivée.','تنتقل القطع إلى هنا بعد 30 يومًا من وصولها.');
     P('Add to home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home Screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية');
     P('Install app','Installer l’appli','تثبيت التطبيق');
+    P('Open in Google Maps','Ouvrir dans Google Maps','افتح في خرائط جوجل'); P('Leave us a Google review','Laissez-nous un avis Google','اترك لنا تقييمًا على جوجل');
     P('Happy customers 💗','Clients satisfaits 💗','عملاء سعداء 💗'); P('What parents say about us','Ce que les parents disent de nous','ماذا يقول الأهل عنا');
     P('Get an exclusive gift!','Recevez un cadeau exclusif !','احصل على هدية حصرية!');
     P('Add our shop to your phone’s home screen and we’ll thank you with a special treat','Ajoutez notre boutique à l’écran d’accueil de votre téléphone et nous vous remercierons avec un petit cadeau','أضف متجرنا إلى الشاشة الرئيسية لهاتفك وسنشكرك بهدية خاصة');
@@ -2155,6 +2157,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   '.cbo-rev .rc img{display:block;width:100%;height:auto}'+
   '.cbo-rev .rm{cursor:auto}.cbo-rev .rp{display:block;width:100%;height:230px;border:0;padding:0;overflow:hidden;background:#eee;cursor:zoom-in}.cbo-rev .rp img{width:100%;height:100%;object-fit:cover;object-position:50% 58%}.cbo-rev .rz{display:block;width:100%;border:0;padding:0;background:none;cursor:zoom-in}.cbo-rev .rz img{display:block;width:100%;height:auto}'+
   '.cbo-rev .rn{font-size:.74rem;color:#8a7a86;margin-top:2px}'+
+  '.cbo-rev .rg{display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:#fff;color:#e0457f;border:2px solid #e0457f;font-weight:800;font-size:.88rem;border-radius:999px;padding:9px 18px;text-decoration:none}.cbo-rev .rg i{font-style:normal}'+
   '#cbo-rv-z{position:fixed;inset:0;z-index:99991;background:rgba(20,10,20,.82);display:none;align-items:center;justify-content:center;padding:14px}'+
   '#cbo-rv-z.on{display:flex}#cbo-rv-z img{max-width:100%;max-height:90vh;border-radius:14px;background:#fff}'+
   '#cbo-rv-z button{position:absolute;top:12px;right:14px;width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#3a2a35;font-size:22px;line-height:36px;padding:0;cursor:pointer}';
@@ -2176,7 +2179,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
         if(r.photo) h+='<div class="rc rm"><button type="button" class="rp" data-z="'+r.photo+'" data-a="'+r.palt+'" aria-label="View photo"><img src="'+r.photo+'" alt="'+r.palt+'" loading="lazy" decoding="async"></button><button type="button" class="rz" data-z="'+r.img+'" data-a="'+r.alt+'" aria-label="View review"><img src="'+r.img+'" alt="'+r.alt+'" loading="lazy" decoding="async"></button></div>';
         else h+='<button type="button" class="rc" data-z="'+r.img+'" data-a="'+r.alt+'" aria-label="View review"><img src="'+r.img+'" alt="'+r.alt+'" loading="lazy" decoding="async"></button>';
       });
-      s.innerHTML=h+'</div>';
+      s.innerHTML=h+'</div><a class="rg" href="https://maps.app.goo.gl/Vvu7bmwAwcGtAgMn8" target="_blank" rel="noopener"><i>⭐</i><span>Leave us a Google review</span></a>';
       s.querySelectorAll('[data-z]').forEach(function(b){ b.addEventListener('click',function(){ var im=z.querySelector('img'); im.src=b.getAttribute('data-z'); im.alt=b.getAttribute('data-a')||''; z.classList.add('on'); }); });
       f.parentNode.insertBefore(s,f);
     }catch(e){} finally{ busy=false; }
