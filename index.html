@@ -881,6 +881,17 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     P('Pieces move here 30 days after they arrive.','Les pièces passent ici 30 jours après leur arrivée.','تنتقل القطع إلى هنا بعد 30 يومًا من وصولها.');
     P('Add to home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home Screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية');
     P('Install app','Installer l’appli','تثبيت التطبيق');
+    P('Get an exclusive gift!','Recevez un cadeau exclusif !','احصل على هدية حصرية!');
+    P('Add our shop to your phone’s home screen and we’ll thank you with a special treat','Ajoutez notre boutique à l’écran d’accueil de votre téléphone et nous vous remercierons avec un petit cadeau','أضف متجرنا إلى الشاشة الرئيسية لهاتفك وسنشكرك بهدية خاصة');
+    P('Tap the button below to add us to your home screen','Appuyez sur le bouton ci-dessous pour nous ajouter à votre écran d’accueil','اضغط على الزر أدناه لإضافتنا إلى شاشتك الرئيسية');
+    P('Take a screenshot of your home screen','Faites une capture d’écran de votre écran d’accueil','التقط لقطة شاشة لشاشتك الرئيسية');
+    P('Send it to us on WhatsApp and get your gift','Envoyez-la nous sur WhatsApp et recevez votre cadeau','أرسلها لنا عبر واتساب واحصل على هديتك');
+    P('I’ve added it','Je l’ai ajouté','لقد أضفته'); P('Already added? Send my screenshot','Déjà ajouté ? Envoyer ma capture','أضفته بالفعل؟ أرسل لقطة الشاشة');
+    P('Enjoy an exclusive 3% discount on your next purchase','Profitez d’une remise exclusive de 3 % sur votre prochain achat','استمتع بخصم حصري 3% على مشترياتك القادمة');
+    P('Thank you for adding us!','Merci de nous avoir ajoutés !','شكرًا لإضافتنا!');
+    P('Now take a screenshot of your home screen and send it to us on WhatsApp to claim your 3% discount.','Faites maintenant une capture d’écran de votre écran d’accueil et envoyez-la nous sur WhatsApp pour obtenir votre remise de 3 %.','الآن التقط لقطة شاشة لشاشتك الرئيسية وأرسلها لنا عبر واتساب للحصول على خصم 3%.');
+    P('Send my screenshot','Envoyer ma capture','أرسل لقطة الشاشة');
+    P('We’ll check it and reply with your 3% discount code','Nous la vérifierons et vous répondrons avec votre code de remise de 3 %','سنراجعها ونرد عليك برمز خصم 3%');
     P('Open the browser menu (the 3 dots), then choose','Ouvrez le menu du navigateur (les 3 points), puis choisissez','افتح قائمة المتصفح (النقاط الثلاث) ثم اختر');
     P('Tap the','Appuyez sur le bouton','اضغط على زر'); P('Share','Partager','مشاركة');
     P('button (the square with an arrow), then choose','(le carré avec une flèche), puis choisissez','(المربع الذي به سهم) ثم اختر');
@@ -2029,6 +2040,102 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
 })();
 </script>
 <script id="cbo-ga">(function(){var ID="G-P8RTEW3FGB";try{var q=location.search||"";if(/[?&]me=1/.test(q))localStorage.setItem("cbo-me","1");if(/[?&]me=0/.test(q))localStorage.removeItem("cbo-me");if(localStorage.getItem("cbo-me")==="1")return;if(/[?&](share|check)(=|&|$)/.test(q)||sessionStorage.getItem("cbo-share")==="1")return;}catch(e){}window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config",ID);var s=document.createElement("script");s.async=true;s.src="https://www.googletagmanager.com/gtag/js?id="+ID;document.head.appendChild(s);})();</script>
+<script id="cbo-a2g">
+(function(){
+  if(window.__cboA2g)return; window.__cboA2g=1;
+  var qs=location.search||'', force=/[?&]a2g(=|&|$)/.test(qs);
+  try{
+    if(/[?&](share|check)(=|&|$)/.test(qs)||sessionStorage.getItem('cbo-share')==='1')return;
+    if(!force&&localStorage.getItem('cbo-me')==='1')return;
+  }catch(e){}
+  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone;
+  if(standalone&&!force)return;
+  var touch=false; try{ touch=matchMedia('(pointer:coarse)').matches||('ontouchstart' in window); }catch(e){}
+  if(!touch&&!force)return;
+  var C={}; try{ C=JSON.parse(document.getElementById('catalog').textContent)||{}; }catch(e){}
+  var d=String((C.shop&&C.shop.whatsapp)||'0556967767').replace(/\D/g,''); if(d.length===10&&d.charAt(0)==='0')d='233'+d.slice(1);
+  var K='cbo-a2g';
+  function get(){ try{ return JSON.parse(localStorage.getItem(K)||'null')||{}; }catch(e){ return {}; } }
+  function put(o){ try{ localStorage.setItem(K,JSON.stringify(o)); }catch(e){} }
+  function ev(n){ try{ if(window.gtag)gtag('event',n); }catch(e){} }
+  var st0=get();
+  if(!force&&(st0.claimed||(st0.closed&&Date.now()-st0.closed<7*864e5)))return;
+
+  var dp=null;
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); dp=e; });
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+
+  var css=document.createElement('style');
+  css.textContent=
+  '#cbo-a2g-md{position:fixed;inset:0;z-index:99989;display:none;align-items:center;justify-content:center;background:rgba(40,20,40,.55);font-family:inherit}'+
+  '#cbo-a2g-md.on{display:flex}'+
+  '#cbo-a2g-md .bx{position:relative;width:min(88vw,350px);max-height:92vh;overflow:auto;box-sizing:border-box;background:linear-gradient(180deg,#ffe3ee,#fff 45%,#dcecff);border-radius:24px;padding:20px 18px 18px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.4);color:#3a2a35}'+
+  '#cbo-a2g-md .x{position:absolute;top:10px;right:12px;width:32px;height:32px;border-radius:50%;border:0;background:#3a2a35;color:#fff;font-size:20px;line-height:32px;padding:0;cursor:pointer}'+
+  '#cbo-a2g-md h2{margin:4px 0 0;font-size:1.5rem;line-height:1.15;background:linear-gradient(90deg,#fb8cb1,#30aafe);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}'+
+  '#cbo-a2g-md h2.t2{background:none;-webkit-text-fill-color:#e0457f;color:#e0457f;font-size:1.4rem;margin-top:6px}'+
+  '#cbo-a2g-md p{margin:6px 6px 10px;font-size:.88rem;color:#6b5a66}'+
+  '#cbo-a2g-md ol{list-style:none;margin:0;padding:10px 12px;text-align:start;font-size:.84rem;line-height:1.35;background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.1)}'+
+  '#cbo-a2g-md li{display:flex;gap:8px;align-items:flex-start;margin:5px 0}'+
+  '#cbo-a2g-md li b{flex:none;width:20px;height:20px;border-radius:50%;background:#e0457f;color:#fff;text-align:center;line-height:20px;font-size:12px}'+
+  '#cbo-a2g-md .go,#cbo-a2g-md .wa{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;margin-top:12px;border:0;cursor:pointer;font:inherit;font-weight:900;font-size:.98rem;color:#fff;text-decoration:none;padding:12px;border-radius:999px}'+
+  '#cbo-a2g-md .go{background:#e0457f}#cbo-a2g-md .wa{background:#25b866}'+
+  '#cbo-a2g-md .lk{display:block;margin:10px auto 0;border:0;background:none;font:inherit;font-size:.8rem;color:#6b5a66;text-decoration:underline;cursor:pointer}'+
+  '#cbo-a2g-md .tip{margin-top:10px;background:#fff;border:2px solid #fb8cb1;border-radius:14px;padding:9px 11px;font-size:.84rem;text-align:start;color:#333}'+
+  '#cbo-a2g-md .gl{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:.84rem;font-weight:800;color:#e0457f;text-align:start}'+
+  '#cbo-a2g-md .nt{margin-top:10px;background:#fff;border-radius:12px;padding:8px;font-size:.78rem;color:#6b5a66}'+
+  '@media (prefers-reduced-motion:no-preference){#cbo-a2g-md.on .bx{animation:cboa2in .3s ease-out}@keyframes cboa2in{from{transform:translateY(14px) scale(.96);opacity:0}to{transform:none;opacity:1}}}';
+  document.head.appendChild(css);
+
+  function gift(w){ return '<svg width="'+w+'" height="'+w+'" viewBox="0 0 120 120" aria-hidden="true" style="flex:none;overflow:visible"><use href="#cbo-gift"/></svg>'; }
+  var md=document.createElement('div'); md.id='cbo-a2g-md'; md.setAttribute('role','dialog'); md.setAttribute('aria-modal','true'); md.setAttribute('aria-label','Home screen gift');
+  md.innerHTML='<div class="bx"><button class="x" type="button" aria-label="Close">×</button><div class="in"></div></div>';
+  document.body.appendChild(md);
+  var inn=md.querySelector('.in'), xb=md.querySelector('.x'), step=1, opened=false;
+
+  function s1(showTip){
+    step=1;
+    inn.innerHTML=gift(84)+
+      '<h2>Get an exclusive gift!</h2>'+
+      '<p>Add our shop to your phone’s home screen and we’ll thank you with a special treat</p>'+
+      '<ol><li><b>1</b><span>Tap the button below to add us to your home screen</span></li><li><b>2</b><span>Take a screenshot of your home screen</span></li><li><b>3</b><span>Send it to us on WhatsApp and get your gift</span></li></ol>'+
+      (showTip?'<div class="tip">'+(ios?'Tap the <b>Share</b> button (the square with an arrow), then choose <b>Add to Home Screen</b>.':'Open the browser menu (the 3 dots), then choose <b>Add to Home screen</b> or <b>Install app</b>.')+'</div>':'')+
+      '<button class="go" type="button"><span>Add to home screen</span></button>'+
+      (showTip?'<button class="lk nx" type="button">I’ve added it</button>':'<button class="lk nx" type="button">Already added? Send my screenshot</button>')+
+      '<div class="gl">'+gift(34)+'<span>Enjoy an exclusive 3% discount on your next purchase</span></div>';
+    inn.querySelector('.go').addEventListener('click',function(){
+      ev('a2g_add');
+      if(dp){ var p=dp; dp=null; try{ p.prompt(); if(p.userChoice)p.userChoice.then(function(r){ if(r&&r.outcome==='accepted')s2(); else s1(true); }); return; }catch(e){} }
+      s1(true);
+    });
+    inn.querySelector('.nx').addEventListener('click',s2);
+  }
+  function s2(){
+    step=2;
+    var m='Hello Cee’s Babies Outlet 💗 I added your shop to my home screen. Here is my screenshot for my 3% discount!';
+    inn.innerHTML='<div style="font-size:40px;line-height:1">🎉</div>'+
+      '<h2 class="t2">Thank you for adding us!</h2>'+
+      '<p>Now take a screenshot of your home screen and send it to us on WhatsApp to claim your 3% discount.</p>'+
+      '<div style="display:flex;justify-content:center">'+gift(84)+'</div>'+
+      '<a class="wa" target="_blank" rel="noopener" href="https://wa.me/'+d+'?text='+encodeURIComponent(m)+'"><span>Send my screenshot</span></a>'+
+      '<div class="nt">We’ll check it and reply with your 3% discount code</div>';
+    inn.querySelector('.wa').addEventListener('click',function(){ var o=get(); o.claimed=Date.now(); put(o); ev('a2g_claim'); });
+  }
+  function open(){ if(opened&&md.classList.contains('on'))return; opened=true; s1(false); md.classList.add('on'); ev('a2g_open'); try{ xb.focus(); }catch(e){} }
+  function close(){ md.classList.remove('on'); if(step===1&&!force){ var o=get(); o.closed=Date.now(); put(o); } }
+  xb.addEventListener('click',close);
+  md.addEventListener('click',function(e){ if(e.target===md)close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&md.classList.contains('on'))close(); });
+  window.addEventListener('appinstalled',function(){ if(md.classList.contains('on'))s2(); });
+
+  function other(){
+    var l=document.querySelectorAll('[role="dialog"]');
+    for(var i=0;i<l.length;i++){ if(l[i]!==md&&getComputedStyle(l[i]).display!=='none')return true; }
+    var sp=document.getElementById('cbo-sp'); return !!(sp&&sp.classList.contains('on'));
+  }
+  function attempt(){ if(other()){ setTimeout(attempt,6000); return; } open(); }
+  if(force)setTimeout(open,800); else setTimeout(attempt,30000);
+})();
+</script>
 <script id="cbo-spin">
 (function(){
   if(window.__cboSpin)return; window.__cboSpin=1;
