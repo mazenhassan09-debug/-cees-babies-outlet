@@ -2207,7 +2207,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   function spin(){
     if(spinning)return; spinning=true; var go=inn.querySelector('.go'); go.disabled=true;
     var pi=pick(), cand=[]; for(var i=0;i<SL.length;i++) if(SL[i]===pi) cand.push(i);
-    var si=cand[Math.floor(rand()*cand.length)], sa=360/SL.length, center=(si+0.5)*sa, jit=(rand()-0.5)*sa*0.6;
+    var si=cand[Math.floor(rand()*cand.length)], sa=360/SL.length, center=si*sa, jit=(rand()-0.5)*sa*0.6;
     var F=((-(center)+jit)%360+360)%360, cur=rot, base=cur-((cur%360)+360)%360;
     var reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion:reduce)').matches; }catch(e){}
     var turns=reduce?1:5+Math.floor(rand()*2), dur=reduce?700:5200;
