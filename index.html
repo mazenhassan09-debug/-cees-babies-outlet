@@ -2292,7 +2292,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
 
   /* owner's code checker:  /?check=CODE  (or /?check= to type one) */
   var cm=/[?&]check=([^&]*)/.exec(qs);
-  function checkerCS(v){
+  function checker(v){
     md.classList.add('on'); var res=dec(v), used=load('cbo-spin-used')||{};
     var h='<h2>Check a code 🔍</h2><input type="text" class="ci" placeholder="CEE-XXXX-XXX" value="'+esc(v||'')+'" autocomplete="off"><button class="go" type="button" style="margin-top:12px;padding:10px 26px;font-size:.95rem">Check</button><div class="out" style="margin-top:14px">';
     if(v){
@@ -2305,42 +2305,6 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     var ci=inn.querySelector('.ci'), go=inn.querySelector('.go'); go.addEventListener('click',function(){ checker(ci.value); }); ci.addEventListener('keydown',function(e){ if(e.key==='Enter')checker(ci.value); });
     var ub=inn.querySelector('.ub'); if(ub&&res) ub.addEventListener('click',function(){ var m=load('cbo-spin-used')||{}; if(m[res.code])delete m[res.code]; else m[res.code]=Date.now(); save('cbo-spin-used',m); checker(v); });
   }
-
-  /* ---- home-screen gift codes (3%, no expiry, no minimum) : HOME-XXXX-XXX ---- */
-  function hash2(x){ return hash((x^0x2B3C4D)>>>0); }
-  function encH(){ var x=Math.floor(rand()*4194304), v=x*1024+hash2(x), s=''; for(var i=0;i<7;i++){ s=AL.charAt(v%32)+s; v=Math.floor(v/32); } return 'HOME-'+s.slice(0,4)+'-'+s.slice(4); }
-  function decH(str){ var s=String(str||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(s.indexOf('HOME')!==0||s.length!==11)return null; s=s.slice(4);
-    var v=0; for(var i=0;i<7;i++){ var k=AL.indexOf(s.charAt(i)); if(k<0)return null; v=v*32+k; }
-    var h=v%1024, x=Math.floor(v/1024); if(x>=4194304||hash2(x)!==h)return null; return 'HOME-'+s.slice(0,4)+'-'+s.slice(4); }
-  function homeCount(){ var made=load('cbo-home-made')||[], used=load('cbo-spin-used')||{}, u=0; for(var k in used){ if(k.indexOf('HOME-')===0)u++; } return 'Made on this phone: '+made.length+' · Used: '+u; }
-  function addMaker(){
-    inn.insertAdjacentHTML('beforeend','<div class="card" style="border-style:solid;border-color:#25b866;margin-top:16px"><div style="font-weight:900">🎁 Home-screen gift</div><div style="font-size:.8rem;color:#6b5a66">3% off · no expiry · no minimum order</div><button class="go mk" type="button" style="margin-top:10px;padding:10px 22px;font-size:.92rem;background:#25b866;box-shadow:0 4px 0 #1b8a4b">Make a 3% gift code</button><div class="mo"></div><div class="sm mc">'+homeCount()+'</div></div>');
-    var mk=inn.querySelector('.mk'), mo=inn.querySelector('.mo');
-    mk.addEventListener('click',function(){
-      var code=encH(), made=load('cbo-home-made')||[]; made.push({c:code,t:Date.now()}); save('cbo-home-made',made);
-      var msg='Thank you for adding us to your home screen 💗 Here is your 3% discount code: '+code+'\nUse it on your next purchase at Cee’s Babies Outlet. (No expiry, no minimum order.)';
-      mo.innerHTML='<div class="cd">'+esc(code)+'</div><button class="wa cpm" type="button">Copy message for WhatsApp</button><div class="sm cpo" style="margin-top:6px"></div>';
-      inn.querySelector('.mc').textContent=homeCount();
-      inn.querySelector('.cpm').addEventListener('click',function(){
-        var ok=function(){ inn.querySelector('.cpo').textContent='✅ Copied — paste it in the customer’s chat'; };
-        try{ navigator.clipboard.writeText(msg).then(ok,function(){ fb(); }); }catch(e){ fb(); }
-        function fb(){ var ta=document.createElement('textarea'); ta.value=msg; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){ inn.querySelector('.cpo').textContent=msg; } ta.remove(); }
-      });
-    });
-  }
-  function checkerHome(v){
-    md.classList.add('on'); var code=decH(v), used=load('cbo-spin-used')||{};
-    var h='<h2>Check a code 🔍</h2><input type="text" class="ci" placeholder="CEE-XXXX-XXX / HOME-XXXX-XXX" value="'+esc(v||'')+'" autocomplete="off"><button class="go" type="button" style="margin-top:12px;padding:10px 26px;font-size:.95rem">Check</button><div class="out" style="margin-top:14px">';
-    if(!code) h+='<div class="big bad" style="font-size:1.4rem">❌ Not a valid code</div>';
-    else{ var u=used[code];
-      h+='<div class="card"><div class="big ok" style="font-size:1.5rem">✅ Valid code</div><div class="big" style="font-size:1.6rem;margin-top:6px">3% OFF</div><div style="font-size:.85rem;color:#6b5a66">Home-screen gift · 3% off the next purchase</div><div style="font-size:.85rem;margin-top:4px">No expiry · no minimum order</div>'+
-        (u?'<div class="bad" style="font-weight:800;margin-top:8px">⚠️ Marked as used on '+esc(new Date(u).toLocaleDateString('en-GB'))+' (this phone)</div><button class="cp ub" type="button">Undo "used"</button>':'<button class="wa ub" type="button" style="background:#e0457f">Mark as used</button>')+'</div>'; }
-    inn.innerHTML=h+'</div><div class="sm">Used marks are saved on this phone only.</div>';
-    var ci=inn.querySelector('.ci'), go=inn.querySelector('.go'); go.addEventListener('click',function(){ checker(ci.value); }); ci.addEventListener('keydown',function(e){ if(e.key==='Enter')checker(ci.value); });
-    var ub=inn.querySelector('.ub'); if(ub&&code) ub.addEventListener('click',function(){ var m=load('cbo-spin-used')||{}; if(m[code])delete m[code]; else m[code]=Date.now(); save('cbo-spin-used',m); checker(v); });
-    addMaker();
-  }
-  function checker(v){ if(/^\s*HOME/i.test(v||'')){ checkerHome(v); return; } checkerCS(v); addMaker(); }
   if(cm){ checker(decodeURIComponent(cm[1]||'')); }
   /* show the button once the page is ready; offer the wheel once per visit */
   function ready(){ btn.classList.add('on'); label(); if(cm)return; var s=load('cbo-spin'), seen=false; try{ seen=sessionStorage.getItem('cbo-sp-pop')==='1'; }catch(e){}
