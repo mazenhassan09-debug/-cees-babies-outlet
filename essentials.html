@@ -920,6 +920,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     P('Pieces move here 30 days after they arrive.','Les pièces passent ici 30 jours après leur arrivée.','تنتقل القطع إلى هنا بعد 30 يومًا من وصولها.');
     P('Add to home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home Screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية');
     P('Install app','Installer l’appli','تثبيت التطبيق');
+    P('Happy customers 💗','Clients satisfaits 💗','عملاء سعداء 💗'); P('What parents say about us','Ce que les parents disent de nous','ماذا يقول الأهل عنا');
     P('Get an exclusive gift!','Recevez un cadeau exclusif !','احصل على هدية حصرية!');
     P('Add our shop to your phone’s home screen and we’ll thank you with a special treat','Ajoutez notre boutique à l’écran d’accueil de votre téléphone et nous vous remercierons avec un petit cadeau','أضف متجرنا إلى الشاشة الرئيسية لهاتفك وسنشكرك بهدية خاصة');
     P('Tap the button below to add us to your home screen','Appuyez sur le bouton ci-dessous pour nous ajouter à votre écran d’accueil','اضغط على الزر أدناه لإضافتنا إلى شاشتك الرئيسية');
@@ -2176,6 +2177,50 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   }
   function attempt(){ if(other()){ setTimeout(attempt,6000); return; } open(); }
   if(force)setTimeout(open,800); else setTimeout(attempt,30000);
+})();
+</script>
+<script id="cbo-rev">
+(function(){
+  if(window.__cboRev)return; window.__cboRev=1;
+  var qs=location.search||'';
+  try{ if(/[?&](share|check)(=|&|$)/.test(qs)||sessionStorage.getItem('cbo-share')==='1')return; }catch(e){}
+  /* add more reviews by adding a picture to /reviews/ and one line here */
+  var R=[{img:'/reviews/review-1.jpg',alt:'Customer message: parcel received, very nice stuff, we love them'}];
+  if(!R.length)return;
+  var css=document.createElement('style');
+  css.textContent=
+  '.cbo-rev{margin:26px 12px 10px;padding:18px 0 16px;background:linear-gradient(180deg,#ffe3ee,#dcecff);border-radius:24px;text-align:center}'+
+  '.cbo-rev h2{margin:0;font-size:1.4rem;color:#e0457f;font-weight:900}'+
+  '.cbo-rev p{margin:2px 0 12px;font-size:.86rem;color:#6b5a66}'+
+  '.cbo-rev .rs{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 16px 8px;-webkit-overflow-scrolling:touch;justify-content:safe center}'+
+  '.cbo-rev .rc{flex:none;width:min(78vw,300px);scroll-snap-align:center;border:0;padding:0;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.14);cursor:zoom-in}'+
+  '.cbo-rev .rc img{display:block;width:100%;height:auto}'+
+  '.cbo-rev .rn{font-size:.74rem;color:#8a7a86;margin-top:2px}'+
+  '#cbo-rv-z{position:fixed;inset:0;z-index:99991;background:rgba(20,10,20,.82);display:none;align-items:center;justify-content:center;padding:14px}'+
+  '#cbo-rv-z.on{display:flex}#cbo-rv-z img{max-width:100%;max-height:90vh;border-radius:14px;background:#fff}'+
+  '#cbo-rv-z button{position:absolute;top:12px;right:14px;width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#3a2a35;font-size:22px;line-height:36px;padding:0;cursor:pointer}';
+  document.head.appendChild(css);
+  var z=document.createElement('div'); z.id='cbo-rv-z'; z.setAttribute('role','dialog'); z.setAttribute('aria-modal','true'); z.innerHTML='<button type="button" aria-label="Close">×</button><img alt="">';
+  document.body.appendChild(z);
+  function closeZ(){ z.classList.remove('on'); }
+  z.addEventListener('click',function(e){ if(e.target!==z.querySelector('img'))closeZ(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape')closeZ(); });
+  var busy=false;
+  function put(){
+    if(busy)return; busy=true;
+    try{
+      var root=document.getElementById('root'), f=root&&root.querySelector('.foot');
+      if(!f||root.querySelector('.cbo-rev'))return;
+      var s=document.createElement('section'); s.className='cbo-rev'; s.setAttribute('aria-label','Customer reviews');
+      var h='<h2>Happy customers 💗</h2><p>What parents say about us</p><div class="rs">';
+      R.forEach(function(r){ h+='<button type="button" class="rc" aria-label="View review"><img src="'+r.img+'" alt="'+r.alt+'" loading="lazy" decoding="async"></button>'; });
+      s.innerHTML=h+'</div>';
+      s.querySelectorAll('.rc').forEach(function(b,i){ b.addEventListener('click',function(){ var im=z.querySelector('img'); im.src=R[i].img; im.alt=R[i].alt; z.classList.add('on'); }); });
+      f.parentNode.insertBefore(s,f);
+    }catch(e){} finally{ busy=false; }
+  }
+  try{ var root=document.getElementById('root'); if(root)new MutationObserver(put).observe(root,{childList:true}); }catch(e){}
+  put(); setTimeout(put,800); setTimeout(put,2500);
 })();
 </script>
 <script id="cbo-spin">
