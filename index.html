@@ -2143,7 +2143,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   var qs=location.search||'';
   try{ if(/[?&](share|check)(=|&|$)/.test(qs)||sessionStorage.getItem('cbo-share')==='1')return; }catch(e){}
   /* add more reviews by adding a picture to /reviews/ and one line here */
-  var R=[{img:'/reviews/review-1.jpg',alt:'Customer message: parcel received, very nice stuff, we love them'}];
+  var R=[{img:'/reviews/review-1.jpg',alt:'Customer message: parcel received, very nice stuff, we love them'},{img:'/reviews/review-2.jpg',alt:'Alberta: I got the first one and they are very nice'}];
   if(!R.length)return;
   var css=document.createElement('style');
   css.textContent=
