@@ -2106,7 +2106,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   function put(o){ try{ localStorage.setItem(K,JSON.stringify(o)); }catch(e){} }
   function ev(n){ try{ if(window.gtag)gtag('event',n); }catch(e){} }
   var st0=get();
-  if(!force&&(st0.claimed||(st0.closed&&Date.now()-st0.closed<7*864e5)))return;
+  if(!force&&(st0.claimed||(st0.closed&&Date.now()-st0.closed<864e5)))return;
 
   var dp=null;
   window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); dp=e; });
