@@ -596,7 +596,8 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
       '<li><span class="ic b">' + ICON.ig + '</span><div><small>Instagram</small><a href="https://www.instagram.com/ceesbabiesoutlet_/" target="_blank" rel="noopener"><b>ceesbabiesoutlet_</b></a></div></li>' +
       '<li><span class="ic">' + ICON.fb + '</span><div><small>Facebook</small><a href="https://www.facebook.com/share/19goyPuruz/" target="_blank" rel="noopener"><b>Cees Babies Outlet</b></a></div></li>' +
       '<li><span class="ic b">' + ICON.pin + '</span><div><small>Location</small><a href="https://maps.app.goo.gl/Vvu7bmwAwcGtAgMn8" target="_blank" rel="noopener"><b>Manet Ville Estate, Spintex</b></a><a class="gmb" href="https://maps.app.goo.gl/Vvu7bmwAwcGtAgMn8" target="_blank" rel="noopener"><i>📍</i><span>Open in Google Maps</span></a></div></li>' +
-      '<li><span class="ic">' + ICON.van + '</span><div><small>Delivery</small><b>Pickup &amp; deliveries available</b></div></li></ul>' +
+      '<li><span class="ic">' + ICON.van + '</span><div><small>Delivery</small><b>Pickup &amp; deliveries available</b></div></li>' +
+      '<li><span class="ic b">💳</span><div><small>Payment</small><b>MTN Mobile Money</b><a class="gmb paybtn" href="#"><span>View payment card</span></a></div></li></ul>' +
       '<div class="parents"><img src="' + B.mom + '" alt=""><img src="' + B.dad + '" alt=""></div></div></section>' +
       '<footer class="foot">© 2026 Cee’s Babies Outlet · Premium Kids’ Clothing</footer></div>';
 
@@ -921,6 +922,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     P('Pieces move here 30 days after they arrive.','Les pièces passent ici 30 jours après leur arrivée.','تنتقل القطع إلى هنا بعد 30 يومًا من وصولها.');
     P('Add to home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية'); P('Add to Home Screen','Ajouter à l’écran d’accueil','أضف إلى الشاشة الرئيسية');
     P('Install app','Installer l’appli','تثبيت التطبيق');
+    P('Payment','Paiement','الدفع'); P('MTN Mobile Money','MTN Mobile Money','إم تي إن موبايل موني'); P('View payment card','Voir la carte de paiement','عرض بطاقة الدفع');
     P('Open in Google Maps','Ouvrir dans Google Maps','افتح في خرائط جوجل'); P('Leave us a Google review','Laissez-nous un avis Google','اترك لنا تقييمًا على جوجل');
     P('Happy customers 💗','Clients satisfaits 💗','عملاء سعداء 💗'); P('What parents say about us','Ce que les parents disent de nous','ماذا يقول الأهل عنا');
     P('Get an exclusive gift!','Recevez un cadeau exclusif !','احصل على هدية حصرية!');
@@ -2246,6 +2248,30 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
     }catch(e){}
     return of.apply(this,arguments);
   };
+})();
+</script>
+<script id="cbo-pay">
+(function(){
+  if(window.__cboPay)return; window.__cboPay=1;
+  var css=document.createElement('style');
+  css.textContent=
+  '.gmb.paybtn{background:#ffcc00;color:#1b1b1b!important;box-shadow:0 2px 6px rgba(255,204,0,.5)}'+
+  '#cbo-pay-md{position:fixed;inset:0;z-index:99990;display:none;align-items:center;justify-content:center;background:rgba(40,20,40,.72);padding:16px}'+
+  '#cbo-pay-md.on{display:flex}'+
+  '#cbo-pay-md .box{position:relative;max-height:100%;display:flex}'+
+  '#cbo-pay-md img{display:block;max-width:100%;max-height:calc(100vh - 32px);width:auto;height:auto;border-radius:18px;background:#fff;box-shadow:0 10px 40px rgba(0,0,0,.4)}'+
+  '#cbo-pay-md .x{position:absolute;top:-10px;right:-10px;width:36px;height:36px;border:0;border-radius:50%;background:#fff;color:#e0457f;font:900 22px/36px Arial,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer;padding:0}';
+  document.head.appendChild(css);
+  var md=document.createElement('div'); md.id='cbo-pay-md'; md.setAttribute('role','dialog'); md.setAttribute('aria-modal','true');
+  md.innerHTML='<div class="box"><img src="/photos/pay-card.jpg" alt="Pay with MTN Mobile Money: 055 696 7767, Angel Comfort Amoako"><button type="button" class="x" aria-label="Close">×</button></div>';
+  document.body.appendChild(md);
+  function show(on){ md.classList.toggle('on',!!on); try{ if(on&&window.gtag)gtag('event','pay_card_open'); }catch(e){} }
+  document.addEventListener('click',function(e){
+    var t=e.target; if(!t||!t.closest)return;
+    if(t.closest('.paybtn')){ e.preventDefault(); show(true); return; }
+    if(md.classList.contains('on')&&(t===md||t.closest('#cbo-pay-md .x')))show(false);
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape')show(false); });
 })();
 </script>
 <script id="cbo-spin">
