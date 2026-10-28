@@ -2232,6 +2232,26 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   document.addEventListener('keydown',function(e){ if(e.key==='Escape')show(false); });
 })();
 </script>
+<script id="cbo-orderlink">
+(function(){
+  if(window.__cboOL)return; window.__cboOL=1;
+  function mob(){ try{ return (window.matchMedia&&matchMedia('(pointer:coarse)').matches)||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||''); }catch(e){ return false; } }
+  document.addEventListener('click',function(e){
+    try{
+      var a=e.target.closest&&e.target.closest('a.wa[href*="wa.me"]'); if(!a||mob())return;
+      var h=a.getAttribute('href')||'', m=/[?&]text=([^&]*)/.exec(h); if(!m)return;
+      var t=decodeURIComponent(m[1]), re=/(?:^|\n)(CB\d{3}) · ([^\n]*)/g, mm, o=[];
+      while((mm=re.exec(t))){ var n=(/(\d+(?:\.\d+)?)/.exec(mm[2])||[])[1]||''; o.push(mm[1]+'.'+n); }
+      if(!o.length||o.length>40)return;
+      var link='https://ceesbabiesoutlet.com/order.html?o='+o.join('~');
+      t=t.replace(/\n?[ \t]*📷 https?:\/\/\S+/g,'');
+      var sep='\n━━━━━━━━━━━━━━\n*', i=t.lastIndexOf(sep), add='\n📷 See my order pictures:\n'+link;
+      t = i>0 ? t.slice(0,i)+add+t.slice(i) : t+add;
+      a.setAttribute('href', h.replace(/([?&]text=)[^&]*/, '$1'+encodeURIComponent(t)));
+    }catch(x){}
+  },true);
+})();
+</script>
 <script id="cbo-spin">
 (function(){
   if(window.__cboSpin)return; window.__cboSpin=1;

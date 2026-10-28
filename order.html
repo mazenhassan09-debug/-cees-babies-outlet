@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Order pictures | Cee's Babies Outlet</title>
+<meta property="og:title" content="Order pictures | Cee's Babies Outlet"><meta property="og:description" content="The pieces in this order, with pictures and prices."><meta property="og:image" content="https://ceesbabiesoutlet.com/og-image.png">
+<link rel="icon" href="/favicon.png">
+<style>
+:root{--pk:#e0457f;--bl:#30aafe;--ink:#2b2030;--mut:#6b5a66;--bg:#fff6fa;--card:#fff}
+@media (prefers-color-scheme:dark){:root{--ink:#f6eef3;--mut:#c9b8c3;--bg:#1d1520;--card:#2a2030}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Arial,sans-serif;-webkit-text-size-adjust:100%}
+.bar{height:6px;background:linear-gradient(90deg,#ff8fb8,#9fcfff)}
+.wrap{max-width:760px;margin:0 auto;padding:22px 16px 40px}
+h1{margin:0;font-size:1.45rem;color:var(--pk);font-weight:900;text-align:center}
+.sub{margin:6px 0 18px;text-align:center;color:var(--mut);font-size:.95rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.c{background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 4px 16px rgba(224,69,127,.15)}
+.c img{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;background:#f3e6ee}
+.m{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;font-weight:800}
+.m .cd{color:var(--mut);font-size:.9rem}.m .pr{color:var(--pk)}
+.tot{margin:20px 0 6px;text-align:center;font-size:1.15rem;font-weight:900}
+.tot small{display:block;color:var(--mut);font-weight:600;font-size:.82rem;margin-top:2px}
+.go{display:block;margin:18px auto 0;width:max-content;max-width:100%;background:var(--bl);color:#fff;text-decoration:none;font-weight:800;border-radius:999px;padding:11px 22px}
+.empty{text-align:center;color:var(--mut);padding:40px 0}
+</style></head><body><div class="bar"></div>
+<div class="wrap"><h1>Cee’s Babies Outlet 💗</h1><p class="sub" id="sub">Your order pictures</p><div class="grid" id="g"></div><div class="tot" id="t"></div>
+<a class="go" href="/">Visit the shop</a></div>
+<script>
+(function(){
+  var q=(location.search.match(/[?&]o=([^&]*)/)||[])[1]||''; try{q=decodeURIComponent(q)}catch(e){}
+  var items=q.split('~').map(function(s){var p=s.split('.');return /^CB\d{3}$/.test(p[0])?{c:p[0],p:p.slice(1).join('.')}:null}).filter(Boolean).slice(0,40);
+  var g=document.getElementById('g'),t=document.getElementById('t');
+  if(!items.length){g.outerHTML='<div class="empty">No items in this link.</div>';return}
+  var sum=0,all=true;
+  items.forEach(function(it){
+    var d=document.createElement('div');d.className='c';
+    var im=new Image();im.alt='Item '+it.c;im.decoding='async';
+    im.onerror=function(){im.onerror=null;im.src='/photos/'+it.c+'.jpg'};im.src='/photos/hq/'+it.c+'.jpg';
+    var m=document.createElement('div');m.className='m';
+    var a=document.createElement('span');a.className='cd';a.textContent=it.c;
+    var b=document.createElement('span');b.className='pr';
+    var n=parseFloat(it.p); if(isNaN(n)){b.textContent='Ask';all=false}else{b.textContent='GHc '+n.toFixed(2);sum+=n}
+    m.appendChild(a);m.appendChild(b);d.appendChild(im);d.appendChild(m);g.appendChild(d);
+  });
+  document.getElementById('sub').textContent=items.length+' item'+(items.length>1?'s':'')+' in this order';
+  t.innerHTML=all?('Total GHc '+sum.toFixed(2)+'<small>Delivery not included</small>'):'<small>Some prices to be confirmed</small>';
+})();
+</script></body></html>
