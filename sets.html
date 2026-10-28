@@ -1558,7 +1558,7 @@ table.sales td{padding:8px 6px;border-top:1px solid var(--line)}
   (function(){
     var busy=false;
     function canShareFiles(){
-      try{ return !!(navigator.share && navigator.canShare && navigator.canShare({files:[new File(['x'],'a.jpg',{type:'image/jpeg'})]})); }catch(e){ return false; }
+      try{ var mob=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||''); if(!mob) return false; return !!(navigator.share && navigator.canShare && navigator.canShare({files:[new File(['x'],'a.jpg',{type:'image/jpeg'})]})); }catch(e){ return false; }
     }
     function srcFor(c){
       var it=itemByCode(c); if(it && it.img) return Promise.resolve(it.img);
